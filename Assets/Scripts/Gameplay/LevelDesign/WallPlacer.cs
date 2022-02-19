@@ -3,35 +3,30 @@ using Loderunner.Service;
 using UnityEngine;
 using Vector2Int = UnityEngine.Vector2Int;
 
-namespace Loderunner.Gameplay.LevelDesign
+namespace Loderunner.Gameplay
 {
     [ExecuteInEditMode]
-    public class LevelUnitPlacer : MonoBehaviour
+    public class WallPlacer : PlacerBase
     {
         [SerializeField, Range(0, 23)] private int _blocksCountHorizontal;
         [SerializeField, Range(0, 23)] private int _blocksCountVertical;
-        [SerializeField] private Vector2Int _startingCellPosition;
         [SerializeField] private GameObject _prefab;
         [SerializeField, HideInInspector] private List<HorizontalBlocks> _blocks = new List<HorizontalBlocks>();
 
         private int _previousBlocksCountHorizontal;
         private int _previousBlocksCountVertical;
-        private Vector2 _previousCellPosition;
 
-        private void OnEnable()
+        protected override  void OnEnable()
         {
+            base.OnEnable();
+            
             _previousBlocksCountHorizontal = _blocksCountHorizontal;
             _previousBlocksCountVertical = _blocksCountVertical;
-            _previousCellPosition = _startingCellPosition;
         }
 
-        private void Update()
+        protected override void Update()
         {
-            if (_previousCellPosition != _startingCellPosition)
-            {
-                _previousCellPosition = _startingCellPosition;
-                transform.localPosition = new Vector3(_startingCellPosition.x * GlobalConstant.CellValue, _startingCellPosition.y * GlobalConstant.CellValue, 0);
-            }
+           base.Update();
 
             if (_previousBlocksCountHorizontal != _blocksCountHorizontal || _previousBlocksCountVertical != _blocksCountVertical)
             {
