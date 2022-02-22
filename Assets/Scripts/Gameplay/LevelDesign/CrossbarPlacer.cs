@@ -31,7 +31,7 @@ namespace Loderunner.Gameplay
             if (_previousLength != _length)
             {
                 _previousLength = _length;
-                _spriteRenderer.size = new Vector2(GlobalConstant.CellValue * _length, GlobalConstant.CellValue);
+                _spriteRenderer.size = new Vector2(CellSize * _length, CellSize);
             }
         }
     }

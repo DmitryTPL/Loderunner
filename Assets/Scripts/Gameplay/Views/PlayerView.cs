@@ -8,6 +8,8 @@ namespace Loderunner.Gameplay
     public class PlayerView : View<PlayerPresenter>
     {
         private static readonly int _moveSpeedAnimationParameter = Animator.StringToHash("MoveSpeed");
+        private static readonly int _climbSpeedAnimationParameter = Animator.StringToHash("ClimbSpeed");
+        private static readonly int _climbFinishedAnimationParameter = Animator.StringToHash("ClimbFinished");
 
         private Rigidbody2D _rigidbody;
         private Animator _animator;
@@ -18,28 +20,53 @@ namespace Loderunner.Gameplay
             _animator = GetComponent<Animator>();
         }
 
+        private void Start()
+        {
+            _presenter.Moving += OnMoving;
+            _presenter.Climbing += OnClimbing;
+            _presenter.ClimbingFinished += OnClimbingFinished;
+        }
+
+        private void OnDestroy()
+        {
+            _presenter.Moving -= OnMoving;
+            _presenter.Climbing -= OnClimbing;
+            _presenter.ClimbingFinished -= OnClimbingFinished;
+        }
+
         private void Update()
         {
-            SetLookDirection();
-            MoveHorizontal();
+            var horizontalMove = Input.GetAxis("Horizontal");
+            var verticalMove = Input.GetAxis("Vertical");
+
+            _presenter.UpdateCharacterData(horizontalMove, verticalMove, transform.position);
         }
 
-        private void MoveHorizontal()
+        private void OnMoving(float movementValue)
         {
-            var inputX = Input.GetAxis("Horizontal");
-
-            var movement = new Vector3(_presenter.PlayerConfig.Speed.x * inputX, 0, 0);
-
-            _rigidbody.velocity = movement;
-
-            _animator.SetFloat(_moveSpeedAnimationParameter, Math.Abs(inputX));
+            MoveHorizontal(movementValue);
         }
 
-        private void SetLookDirection()
+        private void OnClimbing(float movementValue)
         {
-            var inputX = Input.GetAxis("Horizontal");
+            Climb(movementValue);
+        }
 
-            switch (inputX)
+        private void MoveHorizontal(float movementValue)
+        {
+            _rigidbody.bodyType = RigidbodyType2D.Dynamic;
+
+            _rigidbody.velocity = new Vector2(movementValue, 0);
+
+            _animator.SetFloat(_climbSpeedAnimationParameter, 0);
+            _animator.SetFloat(_moveSpeedAnimationParameter, Math.Abs(movementValue));
+
+            SetLookDirection(movementValue);
+        }
+
+        private void SetLookDirection(float moveValue)
+        {
+            switch (moveValue)
             {
                 case 0:
                     return;
@@ -50,6 +77,33 @@ namespace Loderunner.Gameplay
                     transform.localRotation = Quaternion.identity;
                     break;
             }
+        }
+
+        private void Climb(float moveValue)
+        {
+            _rigidbody.bodyType = RigidbodyType2D.Kinematic;
+
+            _animator.SetFloat(_moveSpeedAnimationParameter, 0);
+            _animator.SetFloat(_climbSpeedAnimationParameter, Math.Abs(moveValue) > 0 ? 1 : 0);
+
+            if (Math.Abs(moveValue) <= float.Epsilon)
+            {
+                return;
+            }
+
+            if (!transform.position.x.Equals(_presenter.ClimbingData.LadderCenter))
+            {
+                transform.position = new Vector3(_presenter.ClimbingData.LadderCenter, transform.position.y, transform.position.z);
+            }
+
+            _rigidbody.MovePosition(transform.position + new Vector3(0, moveValue, 0));
+        }
+
+        private void OnClimbingFinished()
+        {
+            _animator.SetFloat(_climbSpeedAnimationParameter, 0);
+            _animator.SetTrigger(_climbFinishedAnimationParameter);
+            _rigidbody.bodyType = RigidbodyType2D.Dynamic;
         }
     }
 }

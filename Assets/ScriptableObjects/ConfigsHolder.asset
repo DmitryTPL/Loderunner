@@ -10,7 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3e48ee1fb9460945a1e32f762ca8eff, type: 3}
-  m_Name: GameConfig
+  m_Name: ConfigsHolder
   m_EditorClassIdentifier: 
   _playerConfig:
-    _speed: {x: 1, y: 1}
+    _walkSpeed: 1
+    _climbSpeed: 1
+    _crawlSpeed: 1
+  _gameConfig:
+    _cellSize: 0.16
+    _movementThreshold: 0.01

@@ -21,11 +21,13 @@ namespace Loderunner.Gameplay
             var xOffset = _offset.x;
             var yOffset = _offset.y - zoom / _zoomCompensation;
 
+            var cellSize = 0.16f;
+
             for (int i = 0; i < 23; i++)
             {
                 for (int j = 0; j < 23; j++)
                 {
-                    var position = new Vector2(i * GlobalConstant.CellValue - xOffset + 0.02f, j * GlobalConstant.CellValue - yOffset + 0.08f);
+                    var position = new Vector2(i * cellSize - xOffset + 0.02f, j * cellSize - yOffset + 0.08f);
 
                     Handles.Label(position, $"{i}:{j}", textStyle);
                 }

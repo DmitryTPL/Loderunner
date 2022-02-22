@@ -74,7 +74,7 @@ namespace Loderunner.Gameplay
                             for (var j = blocksCount; j < _blocksCountHorizontal; j++)
                             {
                                 var block = Instantiate(_prefab,
-                                    new Vector3(transform.position.x + j * GlobalConstant.CellValue, transform.position.y + i * GlobalConstant.CellValue),
+                                    new Vector3(transform.position.x + j * CellSize, transform.position.y + i * CellSize),
                                     Quaternion.identity, transform);
 
                                 horizontal.Blocks.Add(block);

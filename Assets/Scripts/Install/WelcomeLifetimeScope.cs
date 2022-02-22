@@ -1,4 +1,5 @@
 using Loderunner.Welcome;
+using UniTaskPubSub;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,6 +9,7 @@ namespace Loderunner.Install
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.Register<AsyncMessageBus>(Lifetime.Singleton);
             builder.RegisterEntryPoint<LoadService>();
         }
     }

@@ -1,19 +1,21 @@
 ﻿using Loderunner.Service;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 
 namespace Loderunner.Gameplay
 {
     public class PrepareSceneView : View<PrepareScenePresenter>
     {
-        [SerializeField] private Transform _playerStartPosition;
+        [SerializeField] private Transform _levelPosition;
         
-        [Inject] private PlayerView _playerPrefab;
-
         private void Start()
         {
-            _resolver.Instantiate(_playerPrefab, _playerStartPosition.position, Quaternion.identity);
+            InitLevel(1);
+        }
+
+        private void InitLevel(int levelIndex)
+        {
+            var level = _presenter.CreateLevel(_levelPosition, levelIndex);
+            _presenter.CreatePlayer(level.PlayerStartPosition);
         }
     }
 }

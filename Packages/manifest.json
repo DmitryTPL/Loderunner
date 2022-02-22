@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.sag.main-scene-auto-loading": "https://github.com/STARasGAMES/unity-main-scene-auto-loading.git#upm",
     "com.unity.collab-proxy": "1.15.7",
     "com.unity.feature.2d": "1.0.0",
     "com.unity.ide.rider": "3.0.9",
