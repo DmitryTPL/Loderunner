@@ -4,22 +4,20 @@ namespace Loderunner.Gameplay
 {
     public struct StateInitialData
     {
-        public float VerticalMovement { get; }
-        public float HorizontalMovement { get; }
+        public MovingData MovingData { get; }
         public ICharacterConfig CharacterConfig { get; }
         public ClimbingData ClimbingData { get; }
-        public Vector3 CharacterPosition { get; }
-        public bool IsClimbing { get; }
+        public CharacterState PreviousState { get; }
+        public BorderType BorderReachedType { get; }
 
-        public StateInitialData(float horizontalMovement, float verticalMovement, ICharacterConfig characterConfig, 
-            ClimbingData climbingData, Vector3 characterPosition, bool isClimbing)
+        public StateInitialData(MovingData movingData, ICharacterConfig characterConfig, 
+            ClimbingData climbingData, CharacterState previousState, BorderType borderReachedType)
         {
-            VerticalMovement = verticalMovement;
-            HorizontalMovement = horizontalMovement;
+            MovingData = movingData;
             CharacterConfig = characterConfig;
             ClimbingData = climbingData;
-            CharacterPosition = characterPosition;
-            IsClimbing = isClimbing;
+            PreviousState = previousState;
+            BorderReachedType = borderReachedType;
         }
     }
 }

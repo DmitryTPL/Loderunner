@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ConfigsHolder
   m_EditorClassIdentifier: 
   _playerConfig:
-    _walkSpeed: 1
+    _walkSpeed: 1.5
     _climbSpeed: 1
     _crawlSpeed: 1
   _gameConfig:

@@ -9,6 +9,7 @@ namespace Loderunner.Install
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<LadderPresenter>(Lifetime.Scoped);
+            builder.Register<BorderPresenter>(Lifetime.Scoped);
         }
     }
 }

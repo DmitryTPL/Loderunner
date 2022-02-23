@@ -1,14 +1,16 @@
-﻿namespace Loderunner.Gameplay
+﻿using UnityEngine;
+
+namespace Loderunner.Gameplay
 {
     public struct StateResultData
     {
-        public State CurrentState { get; }
-        public float MovementValue { get; }
+        public CharacterState CurrentState { get; }
+        public Vector3 NextCharacterPosition { get; }
         
-        public StateResultData(State currentState, float movementValue)
+        public StateResultData(CharacterState currentState, Vector3 nextCharacterPosition)
         {
             CurrentState = currentState;
-            MovementValue = movementValue;
+            NextCharacterPosition = nextCharacterPosition;
         }
     }
 }

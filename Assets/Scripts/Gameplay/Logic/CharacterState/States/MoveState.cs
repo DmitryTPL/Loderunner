@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
@@ -6,9 +7,16 @@ namespace Loderunner.Gameplay
     {
         public override StateResult Execute(StateInitialData data, GameConfig gameConfig)
         {
-            return Math.Abs(data.HorizontalMovement) >= gameConfig.MovementThreshold
-                ? new StateResult(data.CharacterConfig.WalkSpeed * data.HorizontalMovement)
-                : new StateResult(true);
+            var newPosition = data.MovingData.CharacterPosition +
+                              new Vector3(data.CharacterConfig.WalkSpeed * data.MovingData.HorizontalMove * Time.deltaTime, 0, 0);
+
+            var canMove = Math.Abs(data.MovingData.HorizontalMove) >= gameConfig.MovementThreshold &&
+                          (data.MovingData.HorizontalMove > 0 && data.BorderReachedType != BorderType.Right ||
+                           data.MovingData.HorizontalMove < 0 && data.BorderReachedType != BorderType.Left);
+
+            return canMove
+                ? new StateResult(newPosition)
+                : new StateResult(data.MovingData.CharacterPosition);
         }
     }
 }
