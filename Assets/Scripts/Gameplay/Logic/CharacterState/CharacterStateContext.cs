@@ -13,6 +13,7 @@ namespace Loderunner.Gameplay
             { (int)CharacterState.Moving, new MoveState() },
             { (int)CharacterState.CrossbarCrawling, new CrossbarCrawlingState() },
             { (int)CharacterState.LadderClimbing, new LadderClimbingState() },
+            { (int)CharacterState.Falling, new FallingState() },
         };
 
         public CharacterStateContext(GameConfig gameConfig)

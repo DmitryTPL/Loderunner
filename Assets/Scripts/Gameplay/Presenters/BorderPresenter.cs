@@ -19,7 +19,7 @@ namespace Loderunner.Gameplay
         
         public void ExitBorderTrigger(ICharacterView characterView, BorderType borderType)
         {
-            _publisher.PublishAsync(new MovedAwayFromBorderMessage(characterView, borderType));
+            _publisher.PublishAsync(new MovedAwayFromBorderMessage(characterView));
         }
     }
 }

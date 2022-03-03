@@ -7,9 +7,9 @@ namespace Loderunner.Gameplay
     {
         [SerializeField] private BorderType _borderType;
         
-        private void OnTriggerEnter2D(Collider2D collider)
+        private void OnTriggerEnter2D(Collider2D otherCollider)
         {
-            var characterView = collider.gameObject.GetComponent<ICharacterView>();
+            var characterView = otherCollider.gameObject.GetComponent<ICharacterView>();
 
             if (characterView != null)
             {
@@ -17,9 +17,9 @@ namespace Loderunner.Gameplay
             }
         }
         
-        private void OnTriggerExit2D(Collider2D collider)
+        private void OnTriggerExit2D(Collider2D otherCollider)
         {
-            var characterView = collider.gameObject.GetComponent<ICharacterView>();
+            var characterView = otherCollider.gameObject.GetComponent<ICharacterView>();
 
             if (characterView != null)
             {

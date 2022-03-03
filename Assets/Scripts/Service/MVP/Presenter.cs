@@ -2,6 +2,8 @@
 {
     public abstract class Presenter
     {
-        
+        public virtual void Destroy()
+        {
+        }
     }
 }

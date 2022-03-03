@@ -10,7 +10,7 @@ namespace Loderunner.Install
     public class GameplayLifetimeScope : LifetimeScope
     {
         [Header("Player")] [SerializeField] private PlayerView _playerViewPrefab;
-        [Header("Levels")] [SerializeField] private List<LevelView> _levelPrefabs = new List<LevelView>();
+        [Header("Levels")] [SerializeField] private List<LevelView> _levelPrefabs = new();
         [SerializeField] private ConfigsHolder _configsHolder;
 
         protected override void Configure(IContainerBuilder builder)
@@ -33,6 +33,7 @@ namespace Loderunner.Install
         {
             builder.Register<ICharacterStateContext, CharacterStateContext>(Lifetime.Scoped);
             builder.Register<AsyncMessageBus>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<FallingOpportunityObserver>(Lifetime.Scoped).AsImplementedInterfaces();
         }
 
         private void RegisterPresenters(IContainerBuilder builder)

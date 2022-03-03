@@ -7,13 +7,16 @@ namespace Loderunner.Service
         where TPresenter: Presenter
     {
         protected TPresenter _presenter;
-        protected IObjectResolver _resolver;
         
         [Inject]
-        public void Constructor(TPresenter presenter, IObjectResolver resolver)
+        public void Constructor(TPresenter presenter)
         {
             _presenter = presenter;
-            _resolver = resolver;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            _presenter.Destroy();
         }
     }
 }

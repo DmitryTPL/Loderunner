@@ -1,23 +1,23 @@
-﻿using Loderunner.Service;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
     [ExecuteInEditMode]
-    [RequireComponent(typeof(SpriteRenderer), typeof(BoxCollider2D))]
+    [RequireComponent(typeof(SpriteRenderer))]
     public class LadderPlacer : PlacerBase
     {
         [SerializeField, Range(1, 23)] private int _height;
         [SerializeField] private Transform _title;
-
+        [SerializeField] private BoxCollider2D _mainCollider;
+        [SerializeField] private BoxCollider2D _leftCollider;
+        [SerializeField] private BoxCollider2D _rightCollider;
+        
         private int _previousHeight;
         private SpriteRenderer _spriteRenderer;
-        private BoxCollider2D _boxCollider;
 
         private void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
-            _boxCollider = GetComponent<BoxCollider2D>();
         }
 
         protected override void OnEnable()
@@ -34,11 +34,18 @@ namespace Loderunner.Gameplay
             if (_previousHeight != _height)
             {
                 var size = new Vector2(CellSize, CellSize * _height);
+                var offset = new Vector2(CellSize / 2, size.y / 2);
 
                 _previousHeight = _height;
                 _spriteRenderer.size = size;
-                _boxCollider.size = size;
-                _boxCollider.offset = new Vector2(CellSize * 0.5f, size.y * 0.5f);
+                _mainCollider.size = new Vector2(_mainCollider.size.x, size.y);
+                _mainCollider.offset = offset;
+                
+                _leftCollider.size = new Vector2(_leftCollider.size.x, size.y);
+                _leftCollider.offset = new Vector2(_leftCollider.size.x / 2, size.y / 2);
+                
+                _rightCollider.size = new Vector2(_rightCollider.size.x, size.y);
+                _rightCollider.offset = new Vector2(CellSize - _rightCollider.size.x / 2, size.y / 2);
 
                 _title.localPosition = new Vector3(_title.localPosition.x, size.y, 0);
             }

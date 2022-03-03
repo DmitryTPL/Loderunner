@@ -18,6 +18,7 @@ namespace Loderunner.Gameplay
         public float WalkSpeed { get; }
         public float ClimbSpeed { get; }
         public float CrawlSpeed { get; }
+        public float FallSpeed { get; }
     }
 
     [Serializable]
@@ -26,10 +27,12 @@ namespace Loderunner.Gameplay
         [SerializeField] private float _walkSpeed;
         [SerializeField] private float _climbSpeed;
         [SerializeField] private float _crawlSpeed;
+        [SerializeField] private float _fallSpeed;
 
         public float WalkSpeed => _walkSpeed;
         public float ClimbSpeed => _climbSpeed;
         public float CrawlSpeed => _crawlSpeed;
+        public float FallSpeed => _fallSpeed;
     }
 
     [Serializable]

@@ -7,8 +7,8 @@ namespace Loderunner.Gameplay
     [Serializable]
     public class HorizontalBlocks
     {
-        [SerializeField] private List<GameObject> _blocks = new List<GameObject>();
+        [SerializeField] private List<WallBlockView> _blocks = new();
 
-        public List<GameObject> Blocks => _blocks;
+        public List<WallBlockView> Blocks => _blocks;
     }
 }

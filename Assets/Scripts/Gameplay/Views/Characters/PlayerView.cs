@@ -7,17 +7,13 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
     public class PlayerView : View<PlayerPresenter>, ICharacterView
     {
-        private static readonly int _isMovingAnimationParameter = Animator.StringToHash("IsMoving");
-        private static readonly int _isClimbingAnimationParameter = Animator.StringToHash("IsClimbing");
-        private static readonly int _climbFinishedAnimationParameter = Animator.StringToHash("ClimbFinished");
+        [SerializeField] private CharacterAnimationHandler _animationHandler;
 
         private Rigidbody2D _rigidbody;
-        private Animator _animator;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody2D>();
-            _animator = GetComponent<Animator>();
         }
 
         private void Start()
@@ -25,13 +21,17 @@ namespace Loderunner.Gameplay
             _presenter.Moving += OnMoving;
             _presenter.Climbing += OnClimbing;
             _presenter.ClimbingFinished += OnClimbingFinished;
+            _presenter.Falling += OnFalling;
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+            
             _presenter.Moving -= OnMoving;
             _presenter.Climbing -= OnClimbing;
             _presenter.ClimbingFinished -= OnClimbingFinished;
+            _presenter.Falling -= OnFalling;
         }
 
         private void FixedUpdate()
@@ -46,10 +46,9 @@ namespace Loderunner.Gameplay
         {
             var delta = newPosition.x - transform.position.x;
             var isPositionChanged = Math.Abs(delta) > float.Epsilon;
-            
-            _animator.SetBool(_isClimbingAnimationParameter, false);
-            _animator.SetBool(_isMovingAnimationParameter, isPositionChanged);
-            
+
+            _animationHandler.ApplyAnimation(new MoveAnimationAction(isPositionChanged));
+
             _rigidbody.MovePosition(newPosition);
 
             SetLookDirection(delta);
@@ -58,9 +57,8 @@ namespace Loderunner.Gameplay
         private void OnClimbing(Vector3 newPosition)
         {
             var isPositionChanged = Math.Abs(newPosition.y - transform.position.y) > float.Epsilon;
-
-            _animator.SetBool(_isClimbingAnimationParameter, isPositionChanged);
-            _animator.SetBool(_isMovingAnimationParameter, false);
+            
+            _animationHandler.ApplyAnimation(new ClimbAnimationAction(isPositionChanged));
 
             _rigidbody.MovePosition(newPosition);
         }
@@ -82,7 +80,14 @@ namespace Loderunner.Gameplay
 
         private void OnClimbingFinished()
         {
-            _animator.SetTrigger(_climbFinishedAnimationParameter);
+            _animationHandler.ApplyAnimation(new ClimbFinishedAnimationAction());
+        }
+
+        private void OnFalling(Vector3 newPosition)
+        {
+            _animationHandler.ApplyAnimation(new FallingAnimationAction());
+            
+            _rigidbody.MovePosition(newPosition);
         }
     }
 }

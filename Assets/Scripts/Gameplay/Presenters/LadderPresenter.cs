@@ -15,12 +15,12 @@ namespace Loderunner.Gameplay
 
         public void CharacterEnterLadder(ICharacterView characterView, Vector3 ladderBottomCenter, Vector3 ladderTop)
         {
-            _publisher.PublishAsync(new PlayerEnterLadderMessage(characterView, ladderBottomCenter, ladderTop));
+            _publisher.PublishAsync(new EnterLadderMessage(characterView, ladderBottomCenter, ladderTop));
         }
         
         public void PlayerExitLadder(ICharacterView characterView)
         {
-            _publisher.PublishAsync(new PlayerExitLadderMessage(characterView));
+            _publisher.PublishAsync(new ExitLadderMessage(characterView));
         }
     }
 }

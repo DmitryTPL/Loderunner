@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Loderunner.Service;
@@ -10,36 +11,45 @@ namespace Loderunner.Gameplay
     public class PlayerPresenter : Presenter
     {
         private readonly ICharacterStateContext _characterStateContext;
+        private readonly IFallPointHolder _fallPointHolder;
 
         private CharacterState _currentState;
         private BorderType _borderType;
+        private bool _isNearLadder;
+        private CancellationTokenSource _unsubscribeTokenSource;
+
+        private HashSet<int> _enteredGroundColliders = new ();
 
         public event Action<Vector3> Moving;
         public event Action<Vector3> Climbing;
         public event Action ClimbingFinished;
+        public event Action<Vector3> Falling;
 
         public CharacterConfig PlayerConfig { get; }
         public GameConfig GameConfig { get; }
         public ClimbingData ClimbingData { get; private set; }
 
-        public PlayerPresenter(CharacterConfig playerConfig, ICharacterStateContext characterStateContext, GameConfig gameConfig, IAsyncSubscriber subscriber)
+        public PlayerPresenter(CharacterConfig playerConfig, ICharacterStateContext characterStateContext, GameConfig gameConfig, IAsyncSubscriber subscriber,
+            IFallPointHolder fallPointHolder)
         {
             _characterStateContext = characterStateContext;
+            _fallPointHolder = fallPointHolder;
+            
             PlayerConfig = playerConfig;
             GameConfig = gameConfig;
 
-            subscriber.Subscribe<PlayerEnterLadderMessage>(OnPlayerEnterLadder);
-            subscriber.Subscribe<PlayerExitLadderMessage>(OnPlayerExitLadder);
-            subscriber.Subscribe<BorderReachedMessage>(OnBorderReached);
-            subscriber.Subscribe<MovedAwayFromBorderMessage>(OnMovedAwayFromBorder);
+            subscriber.Subscribe<EnterLadderMessage>(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
+            subscriber.Subscribe<ExitLadderMessage>(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
+            subscriber.Subscribe<BorderReachedMessage>(OnBorderReached).AddTo(_unsubscribeTokenSource.Token);
+            subscriber.Subscribe<MovedAwayFromBorderMessage>(OnMovedAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
+            subscriber.Subscribe<GotOffTheFloorMessage>(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
+            subscriber.Subscribe<FloorReachedMessage>(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void UpdateCharacterData(MovingData movingData)
         {
             var data = _characterStateContext.GetStateData(new StateInitialData(movingData, PlayerConfig,
-                ClimbingData, _currentState, _borderType));
-
-            //this.Log(data.CurrentState.ToString());
+                ClimbingData, _currentState, _borderType, _enteredGroundColliders.Count > 0, _fallPointHolder.FallPoint));
 
             switch (data.CurrentState)
             {
@@ -56,6 +66,9 @@ namespace Loderunner.Gameplay
                     break;
                 case CharacterState.CrossbarCrawling:
                     break;
+                case CharacterState.Falling:
+                    Falling?.Invoke(data.NextCharacterPosition);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -63,7 +76,14 @@ namespace Loderunner.Gameplay
             _currentState = data.CurrentState;
         }
 
-        private UniTask OnPlayerEnterLadder(PlayerEnterLadderMessage message, CancellationToken cancellationToken)
+        public override void Destroy()
+        {
+            base.Destroy();
+            
+            _unsubscribeTokenSource.Cancel();
+        }
+
+        private UniTask OnEnterLadder(EnterLadderMessage message)
         {
             if (message.CharacterView is not PlayerView)
             {
@@ -75,19 +95,19 @@ namespace Loderunner.Gameplay
             return UniTask.CompletedTask;
         }
 
-        private UniTask OnPlayerExitLadder(PlayerExitLadderMessage message, CancellationToken cancellationToken)
+        private UniTask OnExitLadder(ExitLadderMessage message)
         {
             if (message.CharacterView is not PlayerView)
             {
                 return UniTask.CompletedTask;
             }
-            
+
             ClimbingData = new ClimbingData();
 
             return UniTask.CompletedTask;
         }
 
-        private UniTask OnBorderReached(BorderReachedMessage message, CancellationToken cancellationToken)
+        private UniTask OnBorderReached(BorderReachedMessage message)
         {
             if (message.CharacterView is not PlayerView)
             {
@@ -99,7 +119,7 @@ namespace Loderunner.Gameplay
             return UniTask.CompletedTask;
         }
 
-        private UniTask OnMovedAwayFromBorder(MovedAwayFromBorderMessage message, CancellationToken cancellationToken)
+        private UniTask OnMovedAwayFromBorder(MovedAwayFromBorderMessage message)
         {
             if (message.CharacterView is not PlayerView)
             {
@@ -107,6 +127,30 @@ namespace Loderunner.Gameplay
             }
             
             _borderType = BorderType.None;
+            
+            return UniTask.CompletedTask;
+        }
+
+        private UniTask GotOffTheFloor(GotOffTheFloorMessage message)
+        {
+            if (message.CharacterView is not PlayerView)
+            {
+                return UniTask.CompletedTask;
+            }
+
+            _enteredGroundColliders.Remove(message.ColliderId);
+            
+            return UniTask.CompletedTask;
+        }
+
+        private UniTask OnFloorReached(FloorReachedMessage message)
+        {
+            if (message.CharacterView is not PlayerView)
+            {
+                return UniTask.CompletedTask;
+            }
+
+            _enteredGroundColliders.Add(message.ColliderId);
             
             return UniTask.CompletedTask;
         }

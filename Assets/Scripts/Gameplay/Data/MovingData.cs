@@ -6,9 +6,9 @@ namespace Loderunner.Gameplay
     {
         public float HorizontalMove { get; }
         public float VerticalMove { get; }
-        public Vector3 CharacterPosition { get; }
+        public Vector2 CharacterPosition { get; }
 
-        public MovingData(float horizontalMove, float verticalMove, Vector3 characterPosition)
+        public MovingData(float horizontalMove, float verticalMove, Vector2 characterPosition)
         {
             HorizontalMove = horizontalMove;
             VerticalMove = verticalMove;

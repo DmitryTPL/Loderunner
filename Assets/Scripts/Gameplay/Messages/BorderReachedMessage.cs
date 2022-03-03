@@ -1,6 +1,6 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public struct BorderReachedMessage
+    public readonly struct BorderReachedMessage
     {
         public ICharacterView CharacterView { get; }
         public BorderType BorderType { get; }

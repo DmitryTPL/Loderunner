@@ -4,6 +4,7 @@
     {
         CrossbarCrawling,
         LadderClimbing,
+        Falling,
         Moving
     }
 }
