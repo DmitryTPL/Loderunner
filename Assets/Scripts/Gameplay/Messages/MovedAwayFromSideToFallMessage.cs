@@ -1,13 +1,13 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public struct MovedAwayFromSideToFallMessage
+    public struct MovedAwayFromSideToFallMessage : IMessageForCharacter
     {
-        public ICharacterView CharacterView { get; }
+        public int CharacterId { get; }
         public BorderType SideToFall { get; }
 
-        public MovedAwayFromSideToFallMessage(ICharacterView characterView, BorderType sideToFall)
+        public MovedAwayFromSideToFallMessage(int characterId, BorderType sideToFall)
         {
-            CharacterView = characterView;
+            CharacterId = characterId;
             SideToFall = sideToFall;
         }
     }

@@ -1,12 +1,12 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public readonly struct ExitLadderMessage
+    public readonly struct ExitLadderMessage: IMessageForCharacter
     {
-        public ICharacterView CharacterView { get; }
+        public int CharacterId { get; }
 
-        public ExitLadderMessage(ICharacterView characterView)
+        public ExitLadderMessage(int characterId)
         {
-            CharacterView = characterView;
+            CharacterId = characterId;
         }
     }
 }

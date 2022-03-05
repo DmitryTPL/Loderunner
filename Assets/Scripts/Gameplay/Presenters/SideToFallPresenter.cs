@@ -1,29 +1,29 @@
 ﻿using Loderunner.Service;
-using UniTaskPubSub;
+using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
     public class SideToFallPresenter : Presenter
     {
-        private readonly IAsyncPublisher _publisher;
+        private readonly IAsyncEnumerablePublisher _publisher;
         
         public GameConfig GameConfig { get; }
 
-        public SideToFallPresenter(IAsyncPublisher publisher, GameConfig gameConfig)
+        public SideToFallPresenter(IAsyncEnumerablePublisher publisher, GameConfig gameConfig)
         {
             _publisher = publisher;
             
             GameConfig = gameConfig;
         }
 
-        public void ReachingSideToFall(ICharacterView characterView, float fallPoint, BorderType sideToFall)
+        public void ReachingSideToFall(ICharacterInfo character, float fallPoint, BorderType sideToFall)
         {
-            _publisher.PublishAsync(new ReachedSideToFallMessage(characterView, fallPoint, sideToFall));
+            _publisher.Publish(new ReachedSideToFallMessage(character.CharacterId, fallPoint, sideToFall));
         }
 
-        public void MoveAwayFromSideToFall(ICharacterView characterView, BorderType sideToFall)
+        public void MoveAwayFromSideToFall(ICharacterInfo character, BorderType sideToFall)
         {
-            _publisher.PublishAsync(new MovedAwayFromSideToFallMessage(characterView, sideToFall));
+            _publisher.Publish(new MovedAwayFromSideToFallMessage(character.CharacterId, sideToFall));
         }
     }
 }

@@ -1,26 +1,26 @@
 ﻿using Loderunner.Service;
-using UniTaskPubSub;
+using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
     public class LadderPresenter : Presenter
     {
-        private readonly IAsyncPublisher _publisher;
+        private readonly IAsyncEnumerablePublisher _publisher;
 
-        public LadderPresenter(IAsyncPublisher publisher)
+        public LadderPresenter(IAsyncEnumerablePublisher publisher)
         {
             _publisher = publisher;
         }
 
-        public void CharacterEnterLadder(ICharacterView characterView, Vector3 ladderBottomCenter, Vector3 ladderTop)
+        public void CharacterEnterLadder(ICharacterInfo character, Vector3 ladderBottomCenter, Vector3 ladderTop)
         {
-            _publisher.PublishAsync(new EnterLadderMessage(characterView, ladderBottomCenter, ladderTop));
+            _publisher.Publish(new EnterLadderMessage(character.CharacterId, ladderBottomCenter, ladderTop));
         }
         
-        public void PlayerExitLadder(ICharacterView characterView)
+        public void PlayerExitLadder(ICharacterInfo character)
         {
-            _publisher.PublishAsync(new ExitLadderMessage(characterView));
+            _publisher.Publish(new ExitLadderMessage(character.CharacterId));
         }
     }
 }

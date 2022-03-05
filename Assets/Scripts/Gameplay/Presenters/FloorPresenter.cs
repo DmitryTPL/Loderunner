@@ -1,29 +1,28 @@
 ﻿using Loderunner.Service;
-using UniTaskPubSub;
-using UnityEngine;
+using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
     public class FloorPresenter : Presenter
     {
-        private readonly IAsyncPublisher _publisher;
+        private readonly IAsyncEnumerablePublisher _publisher;
 
         private float _leftFallPoint;
         private float _rightFallPoint;
 
-        public FloorPresenter(IAsyncPublisher publisher)
+        public FloorPresenter(IAsyncEnumerablePublisher publisher)
         {
             _publisher = publisher;
         }
 
-        public void FloorReached(ICharacterView characterView, int colliderId)
+        public void FloorReached(ICharacterInfo character, int floorId)
         {
-            _publisher.PublishAsync(new FloorReachedMessage(characterView, colliderId));
+            _publisher.Publish(new FloorReachedMessage(character.CharacterId, floorId));
         }
 
-        public void GotOffTheFloor(ICharacterView characterView, int colliderId)
+        public void GotOffTheFloor(ICharacterInfo character, int floorId)
         {
-            _publisher.PublishAsync(new GotOffTheFloorMessage(characterView, colliderId));
+            _publisher.Publish(new GotOffTheFloorMessage(character.CharacterId, floorId));
         }
     }
 }

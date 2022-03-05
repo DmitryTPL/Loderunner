@@ -16,7 +16,7 @@ namespace Loderunner.Service
 
         protected virtual void OnDestroy()
         {
-            _presenter.Destroy();
+            _presenter.Dispose();
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Loderunner.Gameplay;
-using UniTaskPubSub;
+using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -31,8 +31,8 @@ namespace Loderunner.Install
 
         private void RegisterTypes(IContainerBuilder builder)
         {
+            builder.Register<AsyncEnumerableMessageBus>(Lifetime.Singleton).As<IAsyncEnumerablePublisher, IAsyncEnumerableReceiver>();
             builder.Register<ICharacterStateContext, CharacterStateContext>(Lifetime.Scoped);
-            builder.Register<AsyncMessageBus>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<FallingOpportunityObserver>(Lifetime.Scoped).AsImplementedInterfaces();
         }
 

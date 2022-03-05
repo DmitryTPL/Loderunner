@@ -1,25 +1,25 @@
 ﻿using Loderunner.Service;
-using UniTaskPubSub;
+using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
     public class BorderPresenter: Presenter
     {
-        private readonly IAsyncPublisher _publisher;
+        private readonly IAsyncEnumerablePublisher _publisher;
 
-        public BorderPresenter(IAsyncPublisher publisher)
+        public BorderPresenter(IAsyncEnumerablePublisher publisher)
         {
             _publisher = publisher;
         }
         
-        public void EnterBorderTrigger(ICharacterView characterView, BorderType borderType)
+        public void EnterBorderTrigger(ICharacterInfo character, BorderType border)
         {
-            _publisher.PublishAsync(new BorderReachedMessage(characterView, borderType));
+            _publisher.Publish(new BorderReachedMessage(character.CharacterId, border));
         }
         
-        public void ExitBorderTrigger(ICharacterView characterView, BorderType borderType)
+        public void ExitBorderTrigger(ICharacterInfo character)
         {
-            _publisher.PublishAsync(new MovedAwayFromBorderMessage(characterView));
+            _publisher.Publish(new MovedAwayFromBorderMessage(character.CharacterId));
         }
     }
 }

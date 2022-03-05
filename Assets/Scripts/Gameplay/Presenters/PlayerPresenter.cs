@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
 using Loderunner.Service;
-using UniTaskPubSub;
+using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
@@ -16,9 +16,7 @@ namespace Loderunner.Gameplay
         private CharacterState _currentState;
         private BorderType _borderType;
         private bool _isNearLadder;
-        private CancellationTokenSource _unsubscribeTokenSource;
-
-        private HashSet<int> _enteredGroundColliders = new ();
+        private CancellationTokenSource _unsubscribeTokenSource = new();
 
         public event Action<Vector3> Moving;
         public event Action<Vector3> Climbing;
@@ -28,28 +26,34 @@ namespace Loderunner.Gameplay
         public CharacterConfig PlayerConfig { get; }
         public GameConfig GameConfig { get; }
         public ClimbingData ClimbingData { get; private set; }
+        public int CharacterId => 1;
 
-        public PlayerPresenter(CharacterConfig playerConfig, ICharacterStateContext characterStateContext, GameConfig gameConfig, IAsyncSubscriber subscriber,
-            IFallPointHolder fallPointHolder)
+        public PlayerPresenter(CharacterConfig playerConfig, ICharacterStateContext characterStateContext,
+            GameConfig gameConfig, IAsyncEnumerableReceiver receiver, IFallPointHolder fallPointHolder)
         {
             _characterStateContext = characterStateContext;
             _fallPointHolder = fallPointHolder;
-            
+
+            bool IsCharacter(int characterId)
+            {
+                return characterId == CharacterId;
+            }
+
+            _fallPointHolder.CharacterFilter = IsCharacter;
+
             PlayerConfig = playerConfig;
             GameConfig = gameConfig;
 
-            subscriber.Subscribe<EnterLadderMessage>(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
-            subscriber.Subscribe<ExitLadderMessage>(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
-            subscriber.Subscribe<BorderReachedMessage>(OnBorderReached).AddTo(_unsubscribeTokenSource.Token);
-            subscriber.Subscribe<MovedAwayFromBorderMessage>(OnMovedAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
-            subscriber.Subscribe<GotOffTheFloorMessage>(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
-            subscriber.Subscribe<FloorReachedMessage>(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<EnterLadderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<ExitLadderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<BorderReachedMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnBorderReached).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnMovedAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void UpdateCharacterData(MovingData movingData)
         {
             var data = _characterStateContext.GetStateData(new StateInitialData(movingData, PlayerConfig,
-                ClimbingData, _currentState, _borderType, _enteredGroundColliders.Count > 0, _fallPointHolder.FallPoint));
+                ClimbingData, _currentState, _borderType, _fallPointHolder.IsGrounded, _fallPointHolder.FallPoint));
 
             switch (data.CurrentState)
             {
@@ -76,83 +80,29 @@ namespace Loderunner.Gameplay
             _currentState = data.CurrentState;
         }
 
-        public override void Destroy()
+        private void OnEnterLadder(EnterLadderMessage message)
         {
-            base.Destroy();
-            
-            _unsubscribeTokenSource.Cancel();
-        }
-
-        private UniTask OnEnterLadder(EnterLadderMessage message)
-        {
-            if (message.CharacterView is not PlayerView)
-            {
-                return UniTask.CompletedTask;
-            }
-
             ClimbingData = message.Data;
-
-            return UniTask.CompletedTask;
         }
 
-        private UniTask OnExitLadder(ExitLadderMessage message)
+        private void OnExitLadder(ExitLadderMessage message)
         {
-            if (message.CharacterView is not PlayerView)
-            {
-                return UniTask.CompletedTask;
-            }
-
             ClimbingData = new ClimbingData();
-
-            return UniTask.CompletedTask;
         }
 
-        private UniTask OnBorderReached(BorderReachedMessage message)
+        private void OnBorderReached(BorderReachedMessage message)
         {
-            if (message.CharacterView is not PlayerView)
-            {
-                return UniTask.CompletedTask;
-            }
-            
-            _borderType = message.BorderType;
-            
-            return UniTask.CompletedTask;
+            _borderType = message.Border;
         }
 
-        private UniTask OnMovedAwayFromBorder(MovedAwayFromBorderMessage message)
+        private void OnMovedAwayFromBorder(MovedAwayFromBorderMessage message)
         {
-            if (message.CharacterView is not PlayerView)
-            {
-                return UniTask.CompletedTask;
-            }
-            
             _borderType = BorderType.None;
-            
-            return UniTask.CompletedTask;
         }
 
-        private UniTask GotOffTheFloor(GotOffTheFloorMessage message)
+        public override void Dispose()
         {
-            if (message.CharacterView is not PlayerView)
-            {
-                return UniTask.CompletedTask;
-            }
-
-            _enteredGroundColliders.Remove(message.ColliderId);
-            
-            return UniTask.CompletedTask;
-        }
-
-        private UniTask OnFloorReached(FloorReachedMessage message)
-        {
-            if (message.CharacterView is not PlayerView)
-            {
-                return UniTask.CompletedTask;
-            }
-
-            _enteredGroundColliders.Add(message.ColliderId);
-            
-            return UniTask.CompletedTask;
+            _unsubscribeTokenSource?.Dispose();
         }
     }
 }

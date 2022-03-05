@@ -1,14 +1,14 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public struct ReachedSideToFallMessage
+    public struct ReachedSideToFallMessage : IMessageForCharacter
     {
-        public ICharacterView CharacterView { get; }
+        public int CharacterId { get; }
         public float FallPoint { get; }
         public BorderType SideToFall { get; }
 
-        public ReachedSideToFallMessage(ICharacterView characterView, float fallPoint, BorderType sideToFall)
+        public ReachedSideToFallMessage(int characterId, float fallPoint, BorderType sideToFall)
         {
-            CharacterView = characterView;
+            CharacterId = characterId;
             FallPoint = fallPoint;
             SideToFall = sideToFall;
         }

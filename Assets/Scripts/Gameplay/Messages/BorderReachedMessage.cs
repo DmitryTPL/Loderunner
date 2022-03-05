@@ -1,14 +1,14 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public readonly struct BorderReachedMessage
+    public readonly struct BorderReachedMessage : IMessageForCharacter
     {
-        public ICharacterView CharacterView { get; }
-        public BorderType BorderType { get; }
+        public int CharacterId { get; }
+        public BorderType Border { get; }
 
-        public BorderReachedMessage(ICharacterView characterView, BorderType borderType)
+        public BorderReachedMessage(int characterId, BorderType border)
         {
-            CharacterView = characterView;
-            BorderType = borderType;
+            CharacterId = characterId;
+            Border = border;
         }
     }
 }

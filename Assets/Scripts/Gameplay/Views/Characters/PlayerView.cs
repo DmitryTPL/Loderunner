@@ -5,11 +5,15 @@ using UnityEngine;
 namespace Loderunner.Gameplay
 {
     [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
-    public class PlayerView : View<PlayerPresenter>, ICharacterView
+    public class PlayerView : View<PlayerPresenter>, ICharacterInfo
     {
         [SerializeField] private CharacterAnimationHandler _animationHandler;
+        [SerializeField] private CharacterType _characterType;
 
         private Rigidbody2D _rigidbody;
+
+        public CharacterType CharacterType => _characterType;
+        public int CharacterId => _presenter.CharacterId;
 
         private void Awake()
         {

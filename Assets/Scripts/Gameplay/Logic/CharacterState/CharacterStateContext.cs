@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using UniTaskPubSub;
+using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
     public class CharacterStateContext : ICharacterStateContext
     {
         private readonly GameConfig _gameConfig;
-        private readonly AsyncMessageBus _messageBus;
 
         private readonly Dictionary<int, CharacterStateBase> _states = new()
         {

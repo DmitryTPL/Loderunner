@@ -1,14 +1,14 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public readonly struct GotOffTheFloorMessage
+    public readonly struct GotOffTheFloorMessage : IMessageForCharacter
     {
-        public ICharacterView CharacterView { get; }
-        public int ColliderId { get; }
+        public int CharacterId { get; }
+        public int FloorId { get; }
 
-        public GotOffTheFloorMessage(ICharacterView characterView, int colliderId)
+        public GotOffTheFloorMessage(int characterId, int floorId)
         {
-            CharacterView = characterView;
-            ColliderId = colliderId;
+            CharacterId = characterId;
+            FloorId = floorId;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Loderunner.Gameplay
         
         private void OnTriggerEnter2D(Collider2D otherCollider)
         {
-            var characterView = otherCollider.gameObject.GetComponent<ICharacterView>();
+            var characterView = otherCollider.gameObject.GetComponent<ICharacterInfo>();
 
             if (characterView != null)
             {
@@ -19,11 +19,11 @@ namespace Loderunner.Gameplay
         
         private void OnTriggerExit2D(Collider2D otherCollider)
         {
-            var characterView = otherCollider.gameObject.GetComponent<ICharacterView>();
+            var characterView = otherCollider.gameObject.GetComponent<ICharacterInfo>();
 
             if (characterView != null)
             {
-                _presenter.ExitBorderTrigger(characterView, _borderType);
+                _presenter.ExitBorderTrigger(characterView);
             }
         }
     }

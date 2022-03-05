@@ -1,12 +1,12 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public readonly struct MovedAwayFromBorderMessage
+    public readonly struct MovedAwayFromBorderMessage : IMessageForCharacter
     {
-        public ICharacterView CharacterView { get; }
+        public int CharacterId { get; }
 
-        public MovedAwayFromBorderMessage(ICharacterView characterView)
+        public MovedAwayFromBorderMessage(int characterId)
         {
-            CharacterView = characterView;
+            CharacterId = characterId;
         }
     }
 }
