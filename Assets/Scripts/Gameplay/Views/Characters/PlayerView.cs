@@ -25,6 +25,8 @@ namespace Loderunner.Gameplay
             _presenter.Moving += OnMoving;
             _presenter.Climbing += OnClimbing;
             _presenter.ClimbingFinished += OnClimbingFinished;
+            _presenter.Crawling += OnCrawling;
+            _presenter.CrawlingFinished += OnCrawlingFinished;
             _presenter.Falling += OnFalling;
         }
 
@@ -35,6 +37,8 @@ namespace Loderunner.Gameplay
             _presenter.Moving -= OnMoving;
             _presenter.Climbing -= OnClimbing;
             _presenter.ClimbingFinished -= OnClimbingFinished;
+            _presenter.Crawling -= OnCrawling;
+            _presenter.CrawlingFinished -= OnCrawlingFinished;
             _presenter.Falling -= OnFalling;
         }
 
@@ -92,6 +96,23 @@ namespace Loderunner.Gameplay
             _animationHandler.ApplyAnimation(new FallingAnimationAction());
             
             _rigidbody.MovePosition(newPosition);
+        }
+
+        private void OnCrawling(Vector3 newPosition)
+        {
+            var delta = newPosition.x - transform.position.x;
+            var isPositionChanged = Math.Abs(delta) > float.Epsilon;
+            
+            _animationHandler.ApplyAnimation(new CrawlAnimationAction(isPositionChanged));
+
+            _rigidbody.MovePosition(newPosition);
+            
+            SetLookDirection(delta);
+        }
+
+        private void OnCrawlingFinished()
+        {
+            _animationHandler.ApplyAnimation(new CrawlFinishedAnimationAction());
         }
     }
 }

@@ -12,6 +12,9 @@ namespace Loderunner.Gameplay
     {
         private readonly ICharacterStateContext _characterStateContext;
         private readonly IFallPointHolder _fallPointHolder;
+        
+        private ClimbingData _climbingData;
+        private CrawlingData _crawlingData;
 
         private CharacterState _currentState;
         private BorderType _borderType;
@@ -21,11 +24,12 @@ namespace Loderunner.Gameplay
         public event Action<Vector3> Moving;
         public event Action<Vector3> Climbing;
         public event Action ClimbingFinished;
+        public event Action<Vector3> Crawling;
+        public event Action CrawlingFinished;
         public event Action<Vector3> Falling;
 
         public CharacterConfig PlayerConfig { get; }
         public GameConfig GameConfig { get; }
-        public ClimbingData ClimbingData { get; private set; }
         public int CharacterId => 1;
 
         public PlayerPresenter(CharacterConfig playerConfig, ICharacterStateContext characterStateContext,
@@ -48,12 +52,15 @@ namespace Loderunner.Gameplay
             receiver.Receive<ExitLadderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<BorderReachedMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnBorderReached).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<MovedAwayFromBorderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnMovedAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<EnterCrossbarMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<ExitCrossbarMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void UpdateCharacterData(MovingData movingData)
         {
             var data = _characterStateContext.GetStateData(new StateInitialData(movingData, PlayerConfig,
-                ClimbingData, _currentState, _borderType, _fallPointHolder.IsGrounded, _fallPointHolder.FallPoint));
+                _climbingData, _crawlingData, _currentState, _borderType, 
+                _fallPointHolder.IsGrounded, _fallPointHolder.FallPoint));
 
             switch (data.CurrentState)
             {
@@ -63,12 +70,20 @@ namespace Loderunner.Gameplay
                         ClimbingFinished?.Invoke();
                     }
 
+                    if (_currentState == CharacterState.CrossbarCrawling)
+                    {
+                        CrawlingFinished?.Invoke();
+
+                        _crawlingData = new CrawlingData();
+                    }
+
                     Moving?.Invoke(data.NextCharacterPosition);
                     break;
                 case CharacterState.LadderClimbing:
                     Climbing?.Invoke(data.NextCharacterPosition);
                     break;
                 case CharacterState.CrossbarCrawling:
+                    Crawling?.Invoke(data.NextCharacterPosition);
                     break;
                 case CharacterState.Falling:
                     Falling?.Invoke(data.NextCharacterPosition);
@@ -80,14 +95,19 @@ namespace Loderunner.Gameplay
             _currentState = data.CurrentState;
         }
 
+        public override void Dispose()
+        {
+            _unsubscribeTokenSource?.Dispose();
+        }
+
         private void OnEnterLadder(EnterLadderMessage message)
         {
-            ClimbingData = message.Data;
+            _climbingData = message.Data;
         }
 
         private void OnExitLadder(ExitLadderMessage message)
         {
-            ClimbingData = new ClimbingData();
+            _climbingData = new ClimbingData();
         }
 
         private void OnBorderReached(BorderReachedMessage message)
@@ -100,9 +120,14 @@ namespace Loderunner.Gameplay
             _borderType &= ~message.Border;
         }
 
-        public override void Dispose()
+        private void OnEnterCrossbar(EnterCrossbarMessage message)
         {
-            _unsubscribeTokenSource?.Dispose();
+            _crawlingData = message.CrawlingData;
+        }
+
+        private void OnExitCrossbar(ExitCrossbarMessage message)
+        {
+            _crawlingData = new CrawlingData(true);
         }
     }
 }

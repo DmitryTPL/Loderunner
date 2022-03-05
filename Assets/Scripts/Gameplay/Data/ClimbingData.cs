@@ -2,17 +2,17 @@
 {
     public struct ClimbingData
     {
-        public float LadderBottom { get; }
-        public float LadderCenter { get; }
-        public float LadderTop { get; }
+        public float Bottom { get; }
+        public float Center { get; }
+        public float Top { get; }
 
-        public bool IsEmpty => LadderBottom == 0 && LadderTop == 0;
+        public bool IsEmpty => Bottom == 0 && Top == 0;
 
-        public ClimbingData(float ladderBottom, float ladderCenter, float ladderTop)
+        public ClimbingData(float bottom, float center, float top)
         {
-            LadderBottom = ladderBottom;
-            LadderCenter = ladderCenter;
-            LadderTop = ladderTop;
+            Bottom = bottom;
+            Center = center;
+            Top = top;
         }
     }
 }

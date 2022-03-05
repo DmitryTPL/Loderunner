@@ -12,50 +12,48 @@ namespace Loderunner.Gameplay
 
                 var newPosition = data.MovingData.CharacterPosition;
 
-                if (!data.MovingData.CharacterPosition.x.Equals(data.ClimbingData.LadderCenter))
+                if (!data.MovingData.CharacterPosition.x.Equals(data.ClimbingData.Center))
                 {
-                    newPosition = new Vector2(data.ClimbingData.LadderCenter, data.MovingData.CharacterPosition.y);
+                    newPosition = new Vector2(data.ClimbingData.Center, data.MovingData.CharacterPosition.y);
                 }
 
                 newPosition += movement;
 
-                if (movement != Vector2.zero && newPosition.y > data.ClimbingData.LadderBottom &&
-                    newPosition.y < data.ClimbingData.LadderTop)
+                // moving on ladder
+                if (movement != Vector2.zero && newPosition.y > data.ClimbingData.Bottom &&
+                    newPosition.y < data.ClimbingData.Top)
                 {
                     return new StateResult(newPosition);
                 }
 
                 if (data.PreviousState == CharacterState.LadderClimbing)
                 {
-                    if (data.MovingData.CharacterPosition.y >= data.ClimbingData.LadderTop ||
-                        data.MovingData.CharacterPosition.y <= data.ClimbingData.LadderBottom)
+                    // climbing finished
+                    if (data.MovingData.CharacterPosition.y >= data.ClimbingData.Top ||
+                        data.MovingData.CharacterPosition.y <= data.ClimbingData.Bottom)
                     {
                         return new StateResult(true);
                     }
 
-                    if (data.MovingData.VerticalMove < 0 && newPosition.y <= data.ClimbingData.LadderBottom)
+                    // prevent climbing lower than ladder bottom
+                    if (data.MovingData.VerticalMove < 0 && newPosition.y <= data.ClimbingData.Bottom)
                     {
-                        return new StateResult(new Vector2(data.MovingData.CharacterPosition.x, data.ClimbingData.LadderBottom));
+                        return new StateResult(new Vector2(data.MovingData.CharacterPosition.x, data.ClimbingData.Bottom));
                     }
 
-                    if (data.MovingData.VerticalMove > 0 && newPosition.y >= data.ClimbingData.LadderTop)
+                    // prevent climbing higher than ladder top
+                    if (data.MovingData.VerticalMove > 0 && newPosition.y >= data.ClimbingData.Top)
                     {
-                        return new StateResult(new Vector2(data.MovingData.CharacterPosition.x, data.ClimbingData.LadderTop));
+                        return new StateResult(new Vector2(data.MovingData.CharacterPosition.x, data.ClimbingData.Top));
                     }
 
-                    if (data.MovingData.VerticalMove == 0)
+                    // idle
+                    if (data.MovingData.VerticalMove == 0 && data.MovingData.HorizontalMove == 0)
                     {
-                        if (data.MovingData.HorizontalMove == 0)
+                        if (data.MovingData.CharacterPosition.y > data.ClimbingData.Bottom &&
+                            data.MovingData.CharacterPosition.y < data.ClimbingData.Top)
                         {
-                            if (data.MovingData.CharacterPosition.y > data.ClimbingData.LadderBottom &&
-                                data.MovingData.CharacterPosition.y < data.ClimbingData.LadderTop)
-                            {
-                                return new StateResult(data.MovingData.CharacterPosition);
-                            }
-                        }
-                        else
-                        {
-                            return new StateResult(true);
+                            return new StateResult(data.MovingData.CharacterPosition);
                         }
                     }
                 }

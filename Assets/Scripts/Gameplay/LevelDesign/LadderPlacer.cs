@@ -47,7 +47,7 @@ namespace Loderunner.Gameplay
                 _rightCollider.size = new Vector2(_rightCollider.size.x, size.y);
                 _rightCollider.offset = new Vector2(CellSize - _rightCollider.size.x / 2, size.y / 2);
 
-                _title.localPosition = new Vector3(_title.localPosition.x, size.y, 0);
+                _title.localPosition = new Vector2(_title.localPosition.x, size.y);
             }
         }
     }

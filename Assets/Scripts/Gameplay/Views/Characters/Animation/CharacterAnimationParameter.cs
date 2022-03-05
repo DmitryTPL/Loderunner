@@ -8,6 +8,7 @@ namespace Loderunner.Gameplay
         public static readonly int IsClimbing = Animator.StringToHash("IsClimbing");
         public static readonly int IsCrawling = Animator.StringToHash("IsCrawling");
         public static readonly int ClimbFinished = Animator.StringToHash("ClimbFinished");
+        public static readonly int CrawlFinished = Animator.StringToHash("CrawlFinished");
         public static readonly int IsFalling = Animator.StringToHash("IsFalling");
     }
 }

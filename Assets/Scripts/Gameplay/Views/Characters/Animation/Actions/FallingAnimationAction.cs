@@ -6,9 +6,8 @@ namespace Loderunner.Gameplay
     {
         public override void Execute(Animator animator)
         {
-            animator.SetBool(CharacterAnimationParameter.IsClimbing, false);
-            animator.SetBool(CharacterAnimationParameter.IsClimbing, false);
-            animator.SetBool(CharacterAnimationParameter.IsMoving, false);
+            ResetAll(animator);
+            
             animator.SetBool(CharacterAnimationParameter.IsFalling, true);
         }
     }

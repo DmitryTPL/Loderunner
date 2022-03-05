@@ -13,6 +13,7 @@ namespace Loderunner.Install
             builder.Register<BorderPresenter>(Lifetime.Scoped);
             builder.Register<SideToFallPresenter>(Lifetime.Scoped);
             builder.Register<FloorPresenter>(Lifetime.Scoped);
+            builder.Register<CrossbarPresenter>(Lifetime.Scoped);
         }
     }
 }
