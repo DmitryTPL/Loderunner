@@ -1,5 +1,8 @@
-﻿namespace Loderunner.Gameplay
+﻿using System;
+
+namespace Loderunner.Gameplay
 {
+    [Flags]
     public enum BorderType
     {
         None,

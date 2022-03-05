@@ -23,7 +23,7 @@ namespace Loderunner.Gameplay
 
             if (characterView != null)
             {
-                _presenter.ExitBorderTrigger(characterView);
+                _presenter.ExitBorderTrigger(characterView, _borderType);
             }
         }
     }

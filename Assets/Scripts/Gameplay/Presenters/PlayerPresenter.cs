@@ -92,12 +92,12 @@ namespace Loderunner.Gameplay
 
         private void OnBorderReached(BorderReachedMessage message)
         {
-            _borderType = message.Border;
+            _borderType |= message.Border;
         }
 
         private void OnMovedAwayFromBorder(MovedAwayFromBorderMessage message)
         {
-            _borderType = BorderType.None;
+            _borderType &= ~message.Border;
         }
 
         public override void Dispose()

@@ -13,34 +13,14 @@ namespace Loderunner.Gameplay
         private float _rightFallPoint;
         private float _bottomFallPoint;
         private bool _isOnLadder;
+        private float _fallPoint;
         private CancellationTokenSource _unsubscribeTokenSource = new();
         private HashSet<int> _enteredGroundColliders = new();
 
-        public float FallPoint
-        {
-            get
-            {
-                var fallingPosition = 0f;
-
-                if (Math.Abs(_rightFallPoint) > 0)
-                {
-                    fallingPosition = _rightFallPoint;
-                }
-                else if (Math.Abs(_leftFallPoint) > 0)
-                {
-                    fallingPosition = _leftFallPoint;
-                }
-                else if (Math.Abs(_bottomFallPoint) > 0)
-                {
-                    fallingPosition = _bottomFallPoint;
-                }
-
-                return fallingPosition;
-            }
-        }
-
+        public float FallPoint => _fallPoint;
         public Func<int, bool> CharacterFilter { get; set; }
         public bool IsGrounded => _enteredGroundColliders.Count > 0;
+        public bool IsFalling => !IsGrounded && !_isOnLadder;
 
         public FallingOpportunityObserver(IAsyncEnumerableReceiver receiver)
         {
@@ -50,6 +30,11 @@ namespace Loderunner.Gameplay
             receiver.Receive<FloorReachedMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<EnterLadderMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<ExitLadderMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
+        }
+
+        public void Dispose()
+        {
+            _unsubscribeTokenSource?.Dispose();
         }
 
         private void OnReachedSideToFall(ReachedSideToFallMessage message)
@@ -77,11 +62,6 @@ namespace Loderunner.Gameplay
 
         private void OnMoveAwayFromSideToFall(MovedAwayFromSideToFallMessage message)
         {
-            if (!IsGrounded && !_isOnLadder)
-            {
-                return;
-            }
-            
             switch (message.SideToFall)
             {
                 case BorderType.Left:
@@ -101,23 +81,18 @@ namespace Loderunner.Gameplay
         private void GotOffTheFloor(GotOffTheFloorMessage message)
         {
             _enteredGroundColliders.Remove(message.FloorId);
+
+            TrySetFallPoint();
         }
 
         private void OnFloorReached(FloorReachedMessage message)
         {
-            if (!IsGrounded && !_isOnLadder)
+            if (IsFalling)
             {
-                _rightFallPoint = 0;
-                _leftFallPoint = 0;
-                _bottomFallPoint = 0;
+                _fallPoint = 0;
             }
             
             _enteredGroundColliders.Add(message.FloorId);
-        }
-
-        public void Dispose()
-        {
-            _unsubscribeTokenSource?.Dispose();
         }
 
         private void OnEnterLadder(EnterLadderMessage obj)
@@ -128,6 +103,27 @@ namespace Loderunner.Gameplay
         private void OnExitLadder(ExitLadderMessage obj)
         {
             _isOnLadder = false;
+            
+            TrySetFallPoint();
+        }
+
+        private void TrySetFallPoint()
+        {
+            if (!IsGrounded && !_isOnLadder)
+            {
+                if (Math.Abs(_rightFallPoint) > 0)
+                {
+                    _fallPoint = _rightFallPoint;
+                }
+                else if (Math.Abs(_leftFallPoint) > 0)
+                {
+                    _fallPoint = _leftFallPoint;
+                }
+                else if (Math.Abs(_bottomFallPoint) > 0)
+                {
+                    _fallPoint = _bottomFallPoint;
+                }
+            }
         }
     }
 }

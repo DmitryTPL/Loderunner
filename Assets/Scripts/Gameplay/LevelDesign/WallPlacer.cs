@@ -7,20 +7,31 @@ namespace Loderunner.Gameplay
     [ExecuteInEditMode]
     public class WallPlacer : PlacerBase
     {
+        [Header("Blocks")]
         [SerializeField, Range(0, 23)] private int _blocksCountHorizontal;
         [SerializeField, Range(0, 23)] private int _blocksCountVertical;
         [SerializeField] private WallBlockView _prefab;
         [SerializeField] private List<HorizontalBlocks> _blocks = new List<HorizontalBlocks>();
+        
+        [Space, Header("Fall")]
         [SerializeField] private bool _canFallFromLeft;
         [SerializeField] private bool _canFallFromRight;
         [SerializeField] private BoxCollider2D _leftFallingPointCollider;
         [SerializeField] private BoxCollider2D _rightFallingPointCollider;
         [SerializeField] private BoxCollider2D _mainCollider;
+        
+        [Space, Header("Border")]
+        [SerializeField] private bool _hasBorderForLeftMovement;
+        [SerializeField] private bool _hasBorderForRightMovement;
+        [SerializeField] private BoxCollider2D _borderForLeftMovementCollider;
+        [SerializeField] private BoxCollider2D _borderForRightMovementCollider;
 
         private int _previousBlocksCountHorizontal;
         private int _previousBlocksCountVertical;
         private bool _previousCanFallLeft;
         private bool _previousCanFallRight;
+        private bool _previousHasBorderForLeftMovement;
+        private bool _previousHasBorderForRightMovement;
 
         protected override void OnEnable()
         {
@@ -30,6 +41,8 @@ namespace Loderunner.Gameplay
             _previousBlocksCountVertical = _blocksCountVertical;
             _previousCanFallLeft = _canFallFromLeft;
             _previousCanFallRight = _canFallFromRight;
+            _previousHasBorderForLeftMovement = _hasBorderForLeftMovement;
+            _previousHasBorderForRightMovement = _hasBorderForRightMovement;
         }
 
         protected override void Update()
@@ -38,6 +51,7 @@ namespace Loderunner.Gameplay
 
             TryChangeBlocks();
             TryChangeFallEdges();
+            TryChangeBorders();
         }
 
         [ContextMenu("Recreate blocks")]
@@ -168,6 +182,48 @@ namespace Loderunner.Gameplay
 
             _mainCollider.size = new Vector2(mainColliderSize, _mainCollider.size.y);
             _mainCollider.offset = new Vector2(mainColliderOffset, CellSize * _blocks.Count - _mainCollider.size.y / 2);
+        }
+
+        private void TryChangeBorders()
+        {
+            _borderForRightMovementCollider.enabled = _hasBorderForRightMovement;
+
+            if (_previousHasBorderForLeftMovement != _hasBorderForLeftMovement ||
+                _previousHasBorderForRightMovement != _hasBorderForRightMovement)
+            {
+                RecalculateBorders();
+            }
+        }
+
+        private void RecalculateBorders()
+        {
+            if (_blocks.Count == 0 || _blocks[0].Blocks.Count == 0)
+            {
+                return;
+            }
+            
+            var offset = CellSize / 8;
+            
+            if (_hasBorderForLeftMovement)
+            {
+                _borderForLeftMovementCollider.enabled = _hasBorderForLeftMovement;
+                
+                _borderForLeftMovementCollider.size = new Vector2(CellSize / 2, CellSize * _blocks.Count - offset);
+                _borderForLeftMovementCollider.offset = new Vector2(CellSize * _blocks[0].Blocks.Count - _borderForLeftMovementCollider.size.x / 2,
+                    _borderForLeftMovementCollider.size.y / 2 + offset / 2);
+            }
+            
+            if (_hasBorderForRightMovement)
+            {
+                _borderForRightMovementCollider.enabled = _hasBorderForRightMovement;
+                
+                _borderForRightMovementCollider.size = new Vector2(CellSize / 2, CellSize * _blocks.Count - offset);
+                _borderForRightMovementCollider.offset = new Vector2(_borderForRightMovementCollider.size.x / 2,
+                    _borderForRightMovementCollider.size.y / 2 + offset / 2);
+            }
+
+            _previousHasBorderForLeftMovement = _hasBorderForLeftMovement;
+            _previousHasBorderForRightMovement = _hasBorderForRightMovement;
         }
     }
 }

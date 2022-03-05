@@ -17,9 +17,9 @@ namespace Loderunner.Gameplay
             _publisher.Publish(new BorderReachedMessage(character.CharacterId, border));
         }
         
-        public void ExitBorderTrigger(ICharacterInfo character)
+        public void ExitBorderTrigger(ICharacterInfo character, BorderType border)
         {
-            _publisher.Publish(new MovedAwayFromBorderMessage(character.CharacterId));
+            _publisher.Publish(new MovedAwayFromBorderMessage(character.CharacterId, border));
         }
     }
 }
