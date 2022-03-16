@@ -7,5 +7,7 @@ namespace Loderunner.Gameplay
         float FallPoint { get; }
        
         bool IsGrounded { get; }
+
+        void BeginToFallFromCrossbar(float characterPositionY);
     }
 }

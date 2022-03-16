@@ -11,7 +11,7 @@ namespace Loderunner.Gameplay
 
             var alignedPosition = data.MovingData.CharacterPosition;
 
-            if (!data.MovingData.CharacterPosition.y.Equals(data.FloorPoint))
+            if (!data.MovingData.CharacterPosition.y.Equals(data.FloorPoint) && data.ClimbingData.IsEmpty)
             {
                 alignedPosition = new Vector2(data.MovingData.CharacterPosition.x, data.FloorPoint);
             }

@@ -13,6 +13,7 @@ namespace Loderunner.Gameplay
         private float _rightFallPoint;
         private float _bottomFallPoint;
         private bool _isOnLadder;
+        private bool _isOnCrossbar;
         private float _fallPoint;
         private float _floorPoint;
         private CancellationTokenSource _unsubscribeTokenSource = new();
@@ -22,7 +23,8 @@ namespace Loderunner.Gameplay
         public float FloorPoint => _floorPoint;
         public Func<int, bool> CharacterFilter { get; set; }
         public bool IsGrounded => _enteredGroundColliders.Count > 0;
-        public bool IsFalling => !IsGrounded && !_isOnLadder;
+
+        public bool IsFalling => !IsGrounded && !_isOnLadder && !_isOnCrossbar;
 
         public FallingOpportunityObserver(IAsyncEnumerableReceiver receiver)
         {
@@ -32,16 +34,23 @@ namespace Loderunner.Gameplay
             receiver.Receive<FloorReachedMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<EnterLadderMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<ExitLadderMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<EnterCrossbarMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<ExitCrossbarMessage>().Where(m => CharacterFilter(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Dispose()
         {
             _unsubscribeTokenSource?.Dispose();
         }
+        
+        public void BeginToFallFromCrossbar(float characterPositionY)
+        {
+            _fallPoint = characterPositionY;
+        }
 
         private void OnReachedSideToFall(ReachedSideToFallMessage message)
         {
-            if (!IsGrounded && !_isOnLadder)
+            if (!IsGrounded && !_isOnLadder && !_isOnCrossbar)
             {
                 return;
             }
@@ -116,21 +125,33 @@ namespace Loderunner.Gameplay
 
         private void TrySetFallPoint()
         {
-            if (!IsGrounded && !_isOnLadder)
+            if (IsGrounded || _isOnLadder)
             {
-                if (Math.Abs(_rightFallPoint) > 0)
-                {
-                    _fallPoint = _rightFallPoint;
-                }
-                else if (Math.Abs(_leftFallPoint) > 0)
-                {
-                    _fallPoint = _leftFallPoint;
-                }
-                else if (Math.Abs(_bottomFallPoint) > 0)
-                {
-                    _fallPoint = _bottomFallPoint;
-                }
+                return;
             }
+            
+            if (Math.Abs(_rightFallPoint) > 0)
+            {
+                _fallPoint = _rightFallPoint;
+            }
+            else if (Math.Abs(_leftFallPoint) > 0)
+            {
+                _fallPoint = _leftFallPoint;
+            }
+            else if (Math.Abs(_bottomFallPoint) > 0)
+            {
+                _fallPoint = _bottomFallPoint;
+            }
+        }
+
+        private void OnEnterCrossbar(EnterCrossbarMessage obj)
+        {
+            _isOnCrossbar = true;
+        }
+
+        private void OnExitCrossbar(ExitCrossbarMessage obj)
+        {
+            _isOnCrossbar = false;
         }
     }
 }

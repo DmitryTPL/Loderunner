@@ -10,6 +10,11 @@ namespace Loderunner.Gameplay
             {
                 var newPosition = new Vector2(data.FallPoint, data.MovingData.CharacterPosition.y);
                 
+                if (data.PreviousState == CharacterState.CrossbarCrawling)
+                {
+                    newPosition = data.MovingData.CharacterPosition;
+                }
+                
                 var movement = new Vector2(0, -data.CharacterConfig.FallSpeed * Time.deltaTime);
 
                 return new StateResult(newPosition + movement);

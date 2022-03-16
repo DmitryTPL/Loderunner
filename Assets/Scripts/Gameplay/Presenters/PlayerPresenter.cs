@@ -68,7 +68,7 @@ namespace Loderunner.Gameplay
             switch (data.CurrentState)
             {
                 case CharacterState.Moving:
-                    ResetPlayerActivities();
+                    ResetPlayerActivities(movingData.CharacterPosition);
                     Moving?.Invoke(data.NextCharacterPosition, data.MoveSpeed);
                     break;
                 case CharacterState.LadderClimbing:
@@ -78,7 +78,7 @@ namespace Loderunner.Gameplay
                     Crawling?.Invoke(data.NextCharacterPosition, data.MoveSpeed);
                     break;
                 case CharacterState.Falling:
-                    ResetPlayerActivities();
+                    ResetPlayerActivities(movingData.CharacterPosition);
                     Falling?.Invoke(data.NextCharacterPosition);
                     break;
                 default:
@@ -93,7 +93,7 @@ namespace Loderunner.Gameplay
             _unsubscribeTokenSource?.Dispose();
         }
 
-        private void ResetPlayerActivities()
+        private void ResetPlayerActivities(Vector2 playerPosition)
         {
             if (_currentState == CharacterState.LadderClimbing)
             {
@@ -103,6 +103,8 @@ namespace Loderunner.Gameplay
             if (_currentState == CharacterState.CrossbarCrawling)
             {
                 CrawlingFinished?.Invoke();
+                
+                _fallPointHolder.BeginToFallFromCrossbar(playerPosition.x);
 
                 _crawlingData = new CrawlingData();
             }
