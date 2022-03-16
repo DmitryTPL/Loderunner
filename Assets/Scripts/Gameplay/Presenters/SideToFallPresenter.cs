@@ -16,12 +16,12 @@ namespace Loderunner.Gameplay
             GameConfig = gameConfig;
         }
 
-        public void ReachingSideToFall(ICharacterInfo character, float fallPoint, BorderType sideToFall)
+        public void ReachingSideToFall(ICharacterInfo character, float fallPoint, SideToFallType sideToFall)
         {
             _publisher.Publish(new ReachedSideToFallMessage(character.CharacterId, fallPoint, sideToFall));
         }
 
-        public void MoveAwayFromSideToFall(ICharacterInfo character, BorderType sideToFall)
+        public void MoveAwayFromSideToFall(ICharacterInfo character, SideToFallType sideToFall)
         {
             _publisher.Publish(new MovedAwayFromSideToFallMessage(character.CharacterId, sideToFall));
         }

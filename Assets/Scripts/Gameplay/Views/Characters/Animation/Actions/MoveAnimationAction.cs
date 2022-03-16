@@ -2,20 +2,19 @@
 
 namespace Loderunner.Gameplay
 {
-    public class MoveAnimationAction : AnimationActionBase
+    public class MoveAnimationAction : AnimationActionWithMoveSpeed
     {
-        private readonly bool _isMoving;
-
-        public MoveAnimationAction(bool isMoving)
+        public MoveAnimationAction(float moveSpeed) : base(moveSpeed)
         {
-            _isMoving = isMoving;
         }
         
         public override void Execute(Animator animator)
         {
             ResetAll(animator);
             
-            animator.SetBool(CharacterAnimationParameter.IsMoving, _isMoving);
+            base.Execute(animator);
+            
+            animator.SetBool(CharacterAnimationParameter.IsMoving, true);
         }
     }
 }

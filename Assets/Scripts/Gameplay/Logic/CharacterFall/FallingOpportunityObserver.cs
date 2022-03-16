@@ -7,17 +7,19 @@ using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
-    public class FallingOpportunityObserver : IFallPointHolder, IDisposable
+    public class FallingOpportunityObserver : IFallPointHolder, IDisposable, ICharacterFilter, IFloorPointHolder
     {
         private float _leftFallPoint;
         private float _rightFallPoint;
         private float _bottomFallPoint;
         private bool _isOnLadder;
         private float _fallPoint;
+        private float _floorPoint;
         private CancellationTokenSource _unsubscribeTokenSource = new();
         private HashSet<int> _enteredGroundColliders = new();
 
         public float FallPoint => _fallPoint;
+        public float FloorPoint => _floorPoint;
         public Func<int, bool> CharacterFilter { get; set; }
         public bool IsGrounded => _enteredGroundColliders.Count > 0;
         public bool IsFalling => !IsGrounded && !_isOnLadder;
@@ -43,16 +45,16 @@ namespace Loderunner.Gameplay
             {
                 return;
             }
-            
+
             switch (message.SideToFall)
             {
-                case BorderType.Left:
+                case SideToFallType.Left:
                     _leftFallPoint = message.FallPoint;
                     break;
-                case BorderType.Right:
+                case SideToFallType.Right:
                     _rightFallPoint = message.FallPoint;
                     break;
-                case BorderType.Bottom:
+                case SideToFallType.Bottom:
                     _bottomFallPoint = message.FallPoint;
                     break;
                 default:
@@ -64,13 +66,13 @@ namespace Loderunner.Gameplay
         {
             switch (message.SideToFall)
             {
-                case BorderType.Left:
+                case SideToFallType.Left:
                     _leftFallPoint = 0;
                     break;
-                case BorderType.Right:
+                case SideToFallType.Right:
                     _rightFallPoint = 0;
                     break;
-                case BorderType.Bottom:
+                case SideToFallType.Bottom:
                     _bottomFallPoint = 0;
                     break;
                 default:
@@ -91,7 +93,12 @@ namespace Loderunner.Gameplay
             {
                 _fallPoint = 0;
             }
-            
+
+            if (!IsGrounded)
+            {
+                _floorPoint = message.FloorPoint;
+            }
+
             _enteredGroundColliders.Add(message.FloorId);
         }
 
@@ -103,7 +110,7 @@ namespace Loderunner.Gameplay
         private void OnExitLadder(ExitLadderMessage obj)
         {
             _isOnLadder = false;
-            
+
             TrySetFallPoint();
         }
 

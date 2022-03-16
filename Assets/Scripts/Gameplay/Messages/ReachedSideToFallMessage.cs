@@ -4,9 +4,9 @@
     {
         public int CharacterId { get; }
         public float FallPoint { get; }
-        public BorderType SideToFall { get; }
+        public SideToFallType SideToFall { get; }
 
-        public ReachedSideToFallMessage(int characterId, float fallPoint, BorderType sideToFall)
+        public ReachedSideToFallMessage(int characterId, float fallPoint, SideToFallType sideToFall)
         {
             CharacterId = characterId;
             FallPoint = fallPoint;

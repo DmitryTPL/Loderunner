@@ -2,20 +2,19 @@
 
 namespace Loderunner.Gameplay
 {
-    public class CrawlAnimationAction : AnimationActionBase
+    public class CrawlAnimationAction : AnimationActionWithMoveSpeed
     {
-        private readonly bool _isCrawling;
-
-        public CrawlAnimationAction(bool isCrawling)
+        public CrawlAnimationAction(float moveSpeed) : base(moveSpeed)
         {
-            _isCrawling = isCrawling;
         }
         
         public override void Execute(Animator animator)
         {
             ResetAll(animator);
             
-            animator.SetBool(CharacterAnimationParameter.IsCrawling, _isCrawling);
+            base.Execute(animator);
+            
+            animator.SetBool(CharacterAnimationParameter.IsCrawling, true);
         }
     }
 }

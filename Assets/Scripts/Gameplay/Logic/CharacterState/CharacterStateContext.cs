@@ -33,7 +33,7 @@ namespace Loderunner.Gameplay
                 result = _states[(int)state++].Execute(data, _gameConfig);
             }
 
-            return new StateResultData(previousState, result.NextCharacterPosition);
+            return new StateResultData(previousState, result.NextCharacterPosition, result.MoveSpeed);
         }
     }
 }

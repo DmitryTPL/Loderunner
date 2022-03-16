@@ -13,9 +13,9 @@ namespace Loderunner.Gameplay
             _publisher = publisher;
         }
         
-        public void CharacterEnterCrossbar(ICharacterInfo character, float leftPosition, float rightPosition)
+        public void CharacterEnterCrossbar(ICharacterInfo character, float leftPosition, float rightPosition, float center)
         {
-            _publisher.Publish(new EnterCrossbarMessage(character.CharacterId, leftPosition, rightPosition));
+            _publisher.Publish(new EnterCrossbarMessage(character.CharacterId, leftPosition, rightPosition, center));
         }
 
         public void PlayerExitCrossbar(ICharacterInfo character)

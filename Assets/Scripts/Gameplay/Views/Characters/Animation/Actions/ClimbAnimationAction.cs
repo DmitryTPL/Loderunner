@@ -2,20 +2,19 @@
 
 namespace Loderunner.Gameplay
 {
-    public class ClimbAnimationAction : AnimationActionBase
+    public class ClimbAnimationAction : AnimationActionWithMoveSpeed
     {
-        private readonly bool _isClimbing;
-
-        public ClimbAnimationAction(bool isClimbing)
+        public ClimbAnimationAction(float moveSpeed) : base(moveSpeed)
         {
-            _isClimbing = isClimbing;
         }
         
         public override void Execute(Animator animator)
         {
             ResetAll(animator);
             
-            animator.SetBool(CharacterAnimationParameter.IsClimbing, _isClimbing);
+            base.Execute(animator);
+            
+            animator.SetBool(CharacterAnimationParameter.IsClimbing, true);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(BoxCollider2D))]
     public class SideToFallView : View<SideToFallPresenter>
     {
-        [SerializeField] private BorderType _sideToFall;
+        [SerializeField] private SideToFallType _sideToFall;
         [SerializeField] private BoxCollider2D _collider;
 
         private void OnTriggerEnter2D(Collider2D otherCollider)
@@ -34,9 +34,9 @@ namespace Loderunner.Gameplay
         {
             switch (_sideToFall)
             {
-                case BorderType.Left:
+                case SideToFallType.Left:
                     return _collider.transform.position.x - _presenter.GameConfig.CellSize / 2;
-                case BorderType.Right:
+                case SideToFallType.Right:
                     return _collider.transform.position.x + _collider.offset.x + _collider.size.x / 2 + _presenter.GameConfig.CellSize / 2;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -8,7 +8,9 @@ namespace Loderunner.Gameplay
         {
             if (!data.ClimbingData.IsEmpty)
             {
-                var movement = new Vector2(0, data.MovingData.VerticalMove * data.CharacterConfig.ClimbSpeed * Time.deltaTime);
+                var moveSpeed = data.MovingData.VerticalMove * data.CharacterConfig.ClimbSpeed;
+                
+                var movement = new Vector2(0, moveSpeed * Time.deltaTime);
 
                 var newPosition = data.MovingData.CharacterPosition;
 
@@ -23,7 +25,7 @@ namespace Loderunner.Gameplay
                 if (movement != Vector2.zero && newPosition.y > data.ClimbingData.Bottom &&
                     newPosition.y < data.ClimbingData.Top)
                 {
-                    return new StateResult(newPosition);
+                    return new StateResult(newPosition, moveSpeed);
                 }
 
                 if (data.PreviousState == CharacterState.LadderClimbing)
@@ -48,13 +50,12 @@ namespace Loderunner.Gameplay
                     }
 
                     // idle
-                    if (data.MovingData.VerticalMove == 0 && data.MovingData.HorizontalMove == 0)
+                    if (data.MovingData.VerticalMove == 0 
+                        && data.MovingData.HorizontalMove == 0 
+                        && data.MovingData.CharacterPosition.y > data.ClimbingData.Bottom 
+                        && data.MovingData.CharacterPosition.y < data.ClimbingData.Top)
                     {
-                        if (data.MovingData.CharacterPosition.y > data.ClimbingData.Bottom &&
-                            data.MovingData.CharacterPosition.y < data.ClimbingData.Top)
-                        {
-                            return new StateResult(data.MovingData.CharacterPosition);
-                        }
+                        return new StateResult(data.MovingData.CharacterPosition);
                     }
                 }
             }

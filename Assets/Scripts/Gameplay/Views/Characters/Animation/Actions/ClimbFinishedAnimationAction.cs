@@ -6,6 +6,7 @@ namespace Loderunner.Gameplay
     {
         public override void Execute(Animator animator)
         {
+            ResetAll(animator);
             animator.SetTrigger(CharacterAnimationParameter.ClimbFinished);
         }
     }

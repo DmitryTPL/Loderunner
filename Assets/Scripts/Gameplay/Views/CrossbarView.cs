@@ -14,7 +14,7 @@ namespace Loderunner.Gameplay
             
             if (character != null)
             {
-                _presenter.CharacterEnterCrossbar(character, _left.position.x, _right.position.x);
+                _presenter.CharacterEnterCrossbar(character, _left.position.x, _right.position.x, _left.position.y);
             }
         }
 

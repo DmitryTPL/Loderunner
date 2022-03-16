@@ -12,10 +12,11 @@ namespace Loderunner.Gameplay
         public BorderType BorderReachedType { get; }
         public bool IsGrounded { get; }
         public float FallPoint { get; }
+        public float FloorPoint { get; }
 
         public StateInitialData(MovingData movingData, ICharacterConfig characterConfig, 
             ClimbingData climbingData, CrawlingData crawlingData, CharacterState previousState, 
-            BorderType borderReachedType, bool isGrounded, float fallPoint)
+            BorderType borderReachedType, bool isGrounded, float fallPoint, float floorPoint)
         {
             MovingData = movingData;
             CharacterConfig = characterConfig;
@@ -25,6 +26,7 @@ namespace Loderunner.Gameplay
             BorderReachedType = borderReachedType;
             IsGrounded = isGrounded;
             FallPoint = fallPoint;
+            FloorPoint = floorPoint;
         }
     }
 }

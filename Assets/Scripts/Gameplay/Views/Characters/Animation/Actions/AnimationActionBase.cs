@@ -12,6 +12,7 @@ namespace Loderunner.Gameplay
             animator.SetBool(CharacterAnimationParameter.IsCrawling, false);
             animator.SetBool(CharacterAnimationParameter.IsMoving, false);
             animator.SetBool(CharacterAnimationParameter.IsFalling, false);
+            animator.SetFloat(CharacterAnimationParameter.MoveSpeed, 0);
         }
     }
 }

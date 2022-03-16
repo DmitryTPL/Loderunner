@@ -1,11 +1,9 @@
 ﻿namespace Loderunner.Gameplay
 {
-    public enum BorderType
+    public enum SideToFallType
     {
-        None,
         Left,
         Right,
-        Bottom,
-        Top
+        Bottom
     }
 }

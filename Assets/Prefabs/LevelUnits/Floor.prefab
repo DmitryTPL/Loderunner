@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a61a4990364ca5a99216f693993909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sideToFall: 2
+  _sideToFall: 1
   _collider: {fileID: 2845269013679021452}
 --- !u!61 &2845269013679021452
 BoxCollider2D:
@@ -145,6 +145,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _borderType: 2
+--- !u!1 &3158805320041963856
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4373541651888952730}
+  m_Layer: 0
+  m_Name: Top
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4373541651888952730
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3158805320041963856}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5698892069114690215}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4674050809635780624
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,6 +283,7 @@ Transform:
   - {fileID: 5913135266062515183}
   - {fileID: 591466716853117525}
   - {fileID: 8748156687655445681}
+  - {fileID: 4373541651888952730}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -281,6 +313,7 @@ MonoBehaviour:
   _hasBorderForRightMovement: 0
   _borderForLeftMovementCollider: {fileID: 5660303898821125777}
   _borderForRightMovementCollider: {fileID: 428624532408352697}
+  _floorTop: {fileID: 4373541651888952730}
 --- !u!114 &7488040010084545965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,6 +326,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e584f40c8be24360862ef5c3a90d613b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _fallPoint: {fileID: 4373541651888952730}
 --- !u!61 &7266873850919506250
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -364,7 +398,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a61a4990364ca5a99216f693993909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sideToFall: 1
+  _sideToFall: 0
   _collider: {fileID: 3619149461225214435}
 --- !u!61 &3619149461225214435
 BoxCollider2D:

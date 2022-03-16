@@ -15,9 +15,9 @@ namespace Loderunner.Gameplay
             _publisher = publisher;
         }
 
-        public void FloorReached(ICharacterInfo character, int floorId)
+        public void FloorReached(ICharacterInfo character, int floorId, float floorTop)
         {
-            _publisher.Publish(new FloorReachedMessage(character.CharacterId, floorId));
+            _publisher.Publish(new FloorReachedMessage(character.CharacterId, floorId, floorTop));
         }
 
         public void GotOffTheFloor(ICharacterInfo character, int floorId)

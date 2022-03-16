@@ -50,23 +50,20 @@ namespace Loderunner.Gameplay
             _presenter.UpdateCharacterData(new MovingData(horizontalMove, verticalMove, transform.position));
         }
 
-        private void OnMoving(Vector3 newPosition)
+        private void OnMoving(Vector3 newPosition, float moveSpeed)
         {
             var delta = newPosition.x - transform.position.x;
-            var isPositionChanged = Math.Abs(delta) > float.Epsilon;
 
-            _animationHandler.ApplyAnimation(new MoveAnimationAction(isPositionChanged));
+            _animationHandler.ApplyAnimation(new MoveAnimationAction(moveSpeed));
 
             _rigidbody.MovePosition(newPosition);
 
             SetLookDirection(delta);
         }
 
-        private void OnClimbing(Vector3 newPosition)
+        private void OnClimbing(Vector3 newPosition, float moveSpeed)
         {
-            var isPositionChanged = Math.Abs(newPosition.y - transform.position.y) > float.Epsilon;
-            
-            _animationHandler.ApplyAnimation(new ClimbAnimationAction(isPositionChanged));
+            _animationHandler.ApplyAnimation(new ClimbAnimationAction(moveSpeed));
 
             _rigidbody.MovePosition(newPosition);
         }
@@ -98,12 +95,11 @@ namespace Loderunner.Gameplay
             _rigidbody.MovePosition(newPosition);
         }
 
-        private void OnCrawling(Vector3 newPosition)
+        private void OnCrawling(Vector3 newPosition, float moveSpeed)
         {
             var delta = newPosition.x - transform.position.x;
-            var isPositionChanged = Math.Abs(delta) > float.Epsilon;
             
-            _animationHandler.ApplyAnimation(new CrawlAnimationAction(isPositionChanged));
+            _animationHandler.ApplyAnimation(new CrawlAnimationAction(moveSpeed));
 
             _rigidbody.MovePosition(newPosition);
             
