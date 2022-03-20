@@ -8,11 +8,10 @@ namespace Loderunner.Gameplay
     public class WallPlacer : PlacerBase
     {
         [Header("Blocks")] [SerializeField, Range(0, 23)]
-        private int _blocksCountHorizontal;
+        private int _blocksCount;
 
-        [SerializeField, Range(0, 23)] private int _blocksCountVertical;
         [SerializeField] private WallBlockView _prefab;
-        [SerializeField] private List<HorizontalBlocks> _blocks = new List<HorizontalBlocks>();
+        [SerializeField] private List<WallBlockView> _blocks = new();
 
         [Space, Header("Fall")] [SerializeField]
         private bool _canFallFromLeft;
@@ -28,12 +27,11 @@ namespace Loderunner.Gameplay
         [SerializeField] private bool _hasBorderForRightMovement;
         [SerializeField] private BoxCollider2D _borderForLeftMovementCollider;
         [SerializeField] private BoxCollider2D _borderForRightMovementCollider;
-        
+
         [Space, Header("Floor")] [SerializeField]
         private Transform _floorTop;
 
-        private int _previousBlocksCountHorizontal;
-        private int _previousBlocksCountVertical;
+        private int _previousBlocksCount;
         private bool _previousCanFallLeft;
         private bool _previousCanFallRight;
         private bool _previousHasBorderForLeftMovement;
@@ -43,8 +41,7 @@ namespace Loderunner.Gameplay
         {
             base.OnEnable();
 
-            _previousBlocksCountHorizontal = _blocksCountHorizontal;
-            _previousBlocksCountVertical = _blocksCountVertical;
+            _previousBlocksCount = _blocksCount;
             _previousCanFallLeft = _canFallFromLeft;
             _previousCanFallRight = _canFallFromRight;
             _previousHasBorderForLeftMovement = _hasBorderForLeftMovement;
@@ -63,16 +60,13 @@ namespace Loderunner.Gameplay
         [ContextMenu("Recreate blocks")]
         public void RecreateBlocks()
         {
-            var blocksVertical = _blocksCountVertical;
-            var blocksHorizontal = _blocksCountHorizontal;
+            var blocks = _blocksCount;
 
-            _blocksCountVertical = 0;
-            _blocksCountHorizontal = 0;
+            _blocksCount = 0;
 
             Update();
 
-            _blocksCountVertical = blocksVertical;
-            _blocksCountHorizontal = blocksHorizontal;
+            _blocksCount = blocks;
 
             Update();
         }
@@ -90,69 +84,38 @@ namespace Loderunner.Gameplay
 
         private void TryChangeBlocks()
         {
-            if (_previousBlocksCountHorizontal == _blocksCountHorizontal && _previousBlocksCountVertical == _blocksCountVertical)
+            if (_previousBlocksCount == _blocksCount)
             {
                 return;
             }
-            
-            if (_blocksCountVertical == 0 && _blocksCountHorizontal > 0)
-            {
-                _blocksCountVertical = 1;
-            }
 
-            if (_blocks.Count > _blocksCountVertical)
+            if (_blocks.Count > _blocksCount)
             {
-                for (var k = _blocksCountVertical; k < _blocks.Count; k++)
+                for (var i = _blocksCount; i < _blocks.Count; i++)
                 {
-                    foreach (var block in _blocks[k].Blocks)
-                    {
-                        DestroyImmediate(block.gameObject);
-                    }
+                    DestroyImmediate(_blocks[i].gameObject);
                 }
 
-                _blocks.RemoveRange(_blocksCountVertical, _blocks.Count - _blocksCountVertical);
+                _blocks.RemoveRange(_blocksCount, _blocks.Count - _blocksCount);
             }
             else
             {
-                for (var i = 0; i < _blocksCountVertical; i++)
+                var blocksCount = _blocks.Count;
+
+                for (var i = blocksCount; i < _blocksCount; i++)
                 {
-                    if (_blocks.Count <= i)
-                    {
-                        _blocks.Add(new HorizontalBlocks());
-                    }
+                    var block = PrefabUtility.InstantiatePrefab(_prefab) as WallBlockView;
 
-                    var horizontal = _blocks[i];
+                    block.transform.position = new Vector3(transform.position.x + i * CellSize, transform.position.y);
+                    block.transform.parent = transform;
 
-                    if (horizontal.Blocks.Count > _blocksCountHorizontal)
-                    {
-                        for (var j = _blocksCountHorizontal; j < horizontal.Blocks.Count; j++)
-                        {
-                            DestroyImmediate(horizontal.Blocks[j].gameObject);
-                        }
-
-                        horizontal.Blocks.RemoveRange(_blocksCountHorizontal, horizontal.Blocks.Count - _blocksCountHorizontal);
-                    }
-                    else
-                    {
-                        var blocksCount = horizontal.Blocks.Count;
-
-                        for (var j = blocksCount; j < _blocksCountHorizontal; j++)
-                        {
-                            var block = PrefabUtility.InstantiatePrefab(_prefab) as WallBlockView;
-
-                            block.transform.position = new Vector3(transform.position.x + j * CellSize, transform.position.y + i * CellSize);
-                            block.transform.parent = transform;
-
-                            horizontal.Blocks.Add(block);
-                        }
-                    }
+                    _blocks.Add(block);
                 }
             }
 
-            _floorTop.position = new Vector2(transform.position.x, transform.position.y + _blocks.Count * CellSize);
+            _floorTop.position = new Vector2(transform.position.x, transform.position.y + CellSize);
 
-            _previousBlocksCountHorizontal = _blocksCountHorizontal;
-            _previousBlocksCountVertical = _blocksCountVertical;
+            _previousBlocksCount = _blocksCount;
 
             RecalculateFallEdges();
             RecalculateBorders();
@@ -169,31 +132,31 @@ namespace Loderunner.Gameplay
                 return;
             }
 
-            var mainColliderSize = CellSize * _blocks[^1].Blocks.Count;
-            var mainColliderOffset = mainColliderSize / 2;
+            var mainColliderWidth = CellSize * _blocks.Count;
+            var mainColliderOffset = mainColliderWidth / 2;
 
             if (_canFallFromLeft)
             {
-                mainColliderSize -= _leftFallingPointCollider.size.x;
+                mainColliderWidth -= _leftFallingPointCollider.size.x;
                 mainColliderOffset += _leftFallingPointCollider.size.x / 2;
-                _leftFallingPointCollider.offset =
-                    new Vector2(_leftFallingPointCollider.offset.x, CellSize * _blocks.Count - _leftFallingPointCollider.size.y / 2);
+                _leftFallingPointCollider.offset = new Vector2(_leftFallingPointCollider.size.x / 2, 
+                    CellSize - _leftFallingPointCollider.size.y / 2);
             }
 
             if (_canFallFromRight)
             {
-                mainColliderSize -= _rightFallingPointCollider.size.x;
+                mainColliderWidth -= _rightFallingPointCollider.size.x;
                 mainColliderOffset -= _rightFallingPointCollider.size.x / 2;
                 _rightFallingPointCollider.offset =
-                    new Vector2(CellSize * _blocks[^1].Blocks.Count - _rightFallingPointCollider.size.x / 2,
-                        CellSize * _blocks.Count - _rightFallingPointCollider.size.y / 2);
+                    new Vector2(CellSize * _blocks.Count - _rightFallingPointCollider.size.x / 2,
+                        CellSize - _rightFallingPointCollider.size.y / 2);
             }
 
             _leftFallingPointCollider.enabled = _canFallFromLeft;
             _rightFallingPointCollider.enabled = _canFallFromRight;
 
-            _mainCollider.size = new Vector2(mainColliderSize, _mainCollider.size.y);
-            _mainCollider.offset = new Vector2(mainColliderOffset, CellSize * _blocks.Count - _mainCollider.size.y / 2);
+            _mainCollider.size = new Vector2(mainColliderWidth, _mainCollider.size.y);
+            _mainCollider.offset = new Vector2(mainColliderOffset, CellSize - _mainCollider.size.y / 2);
         }
 
         private void TryChangeBorders()
@@ -209,30 +172,29 @@ namespace Loderunner.Gameplay
 
         private void RecalculateBorders()
         {
-            if (_blocks.Count == 0 || _blocks[0].Blocks.Count == 0)
+            if (_blocks.Count == 0)
             {
                 return;
             }
 
-            var offset = CellSize / 8;
+            var offset = CellSize / 4 + 0.02f;
 
             if (_hasBorderForLeftMovement)
             {
-                _borderForLeftMovementCollider.size = new Vector2(CellSize / 2, CellSize * _blocks.Count - offset);
-                _borderForLeftMovementCollider.offset = new Vector2(CellSize * _blocks[0].Blocks.Count - _borderForLeftMovementCollider.size.x / 2,
+                _borderForLeftMovementCollider.size = new Vector2(CellSize / 2, CellSize - offset);
+                _borderForLeftMovementCollider.offset = new Vector2(CellSize * _blocks.Count - _borderForLeftMovementCollider.size.x / 2,
                     _borderForLeftMovementCollider.size.y / 2 + offset / 2);
             }
 
             if (_hasBorderForRightMovement)
             {
-                _borderForRightMovementCollider.size = new Vector2(CellSize / 2, CellSize * _blocks.Count - offset);
+                _borderForRightMovementCollider.size = new Vector2(CellSize / 2, CellSize - offset);
                 _borderForRightMovementCollider.offset = new Vector2(_borderForRightMovementCollider.size.x / 2,
                     _borderForRightMovementCollider.size.y / 2 + offset / 2);
             }
 
             _borderForLeftMovementCollider.enabled = _hasBorderForLeftMovement;
             _borderForRightMovementCollider.enabled = _hasBorderForRightMovement;
-
 
             _previousHasBorderForLeftMovement = _hasBorderForLeftMovement;
             _previousHasBorderForRightMovement = _hasBorderForRightMovement;

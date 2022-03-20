@@ -7,7 +7,8 @@ namespace Loderunner.Gameplay
     {
         public override StateResult Execute(StateInitialData data, GameConfig gameConfig)
         {
-            if (data.CrawlingData.IsEmpty || data.CrawlingData.IsFinished || data.MovingData.VerticalMove < 0)
+            if (data.CrawlingData.IsEmpty || data.CrawlingData.IsFinished 
+                                          || data.MovingData.VerticalMove < 0 && !data.IsGrounded)
             {
                 return new StateResult(true);
             }
