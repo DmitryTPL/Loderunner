@@ -16,8 +16,9 @@ namespace Loderunner.Gameplay
         private bool _isOnCrossbar;
         private float _fallPoint;
         private float _floorPoint;
-        private CancellationTokenSource _unsubscribeTokenSource = new();
-        private HashSet<int> _enteredGroundColliders = new();
+        
+        private readonly CancellationTokenSource _unsubscribeTokenSource = new();
+        private readonly HashSet<int> _enteredGroundColliders = new();
 
         public float FallPoint => _fallPoint;
         public float FloorPoint => _floorPoint;
@@ -46,6 +47,17 @@ namespace Loderunner.Gameplay
         public void BeginToFallFromCrossbar(float characterPositionY)
         {
             _fallPoint = characterPositionY;
+        }
+
+        public void UpdateFallData(IFallStateData data)
+        {
+            data.IsGrounded = IsGrounded;
+            data.FallPoint = FallPoint;
+        }
+
+        public void UpdateFloorData(IFloorData data)
+        {
+            data.FloorPoint = FloorPoint;
         }
 
         private void OnReachedSideToFall(ReachedSideToFallMessage message)

@@ -3,24 +3,29 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public class MoveState : CharacterStateBase
+    public class MoveState : CharacterStateBase<StateData>
     {
-        public override StateResult Execute(StateInitialData data, GameConfig gameConfig)
+        public MoveState(GameConfig gameConfig, ICharacterConfig characterConfig, StateData data) 
+            : base(gameConfig, characterConfig, data)
         {
-            var moveSpeed = data.CharacterConfig.WalkSpeed * data.MovingData.HorizontalMove;
+        }
 
-            var alignedPosition = data.MovingData.CharacterPosition;
+        public override StateResult Execute()
+        {
+            var moveSpeed = _characterConfig.WalkSpeed * _data.MovingData.HorizontalMove;
 
-            if (!data.MovingData.CharacterPosition.y.Equals(data.FloorPoint) && data.ClimbingData.IsEmpty)
+            var alignedPosition = _data.MovingData.CharacterPosition;
+
+            if (!_data.MovingData.CharacterPosition.y.Equals(_data.FloorPoint) && _data.ClimbingData.IsEmpty)
             {
-                alignedPosition = new Vector2(data.MovingData.CharacterPosition.x, data.FloorPoint);
+                alignedPosition = new Vector2(_data.MovingData.CharacterPosition.x, _data.FloorPoint);
             }
 
             var newPosition = alignedPosition + new Vector2(moveSpeed * Time.deltaTime, 0);
 
-            var canMove = Math.Abs(data.MovingData.HorizontalMove) >= gameConfig.MovementThreshold &&
-                          (data.MovingData.HorizontalMove > 0 && data.BorderReachedType != BorderType.Right ||
-                           data.MovingData.HorizontalMove < 0 && data.BorderReachedType != BorderType.Left);
+            var canMove = Math.Abs(_data.MovingData.HorizontalMove) >= _gameConfig.MovementThreshold &&
+                          (_data.MovingData.HorizontalMove > 0 && _data.BorderReachedType != BorderType.Right ||
+                           _data.MovingData.HorizontalMove < 0 && _data.BorderReachedType != BorderType.Left);
 
             return canMove ? new StateResult(newPosition, moveSpeed) : new StateResult(alignedPosition);
         }

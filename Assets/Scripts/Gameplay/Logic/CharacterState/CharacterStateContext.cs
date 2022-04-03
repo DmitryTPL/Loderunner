@@ -1,26 +1,23 @@
 ﻿using System.Collections.Generic;
-using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
-    public class CharacterStateContext : ICharacterStateContext
+    public abstract class CharacterStateContext<TData> : ICharacterStateContext
+        where TData: StateData
     {
         private readonly GameConfig _gameConfig;
+        private readonly ICharacterConfig _characterConfig;
 
-        private readonly Dictionary<int, CharacterStateBase> _states = new()
-        {
-            { (int)CharacterState.Moving, new MoveState() },
-            { (int)CharacterState.CrossbarCrawling, new CrossbarCrawlingState() },
-            { (int)CharacterState.LadderClimbing, new LadderClimbingState() },
-            { (int)CharacterState.Falling, new FallingState() },
-        };
+        protected Dictionary<int, IExecuteState> States { get; set; }
 
-        public CharacterStateContext(GameConfig gameConfig)
+        public TData StateData { get; }
+        
+        protected CharacterStateContext(TData stateData)
         {
-            _gameConfig = gameConfig;
+            StateData = stateData;
         }
 
-        public StateResultData GetStateData(StateInitialData data)
+        public UpdatedStateData GetStateData()
         {
             var state = (CharacterState)0;
             var result = new StateResult(true);
@@ -30,10 +27,10 @@ namespace Loderunner.Gameplay
             {
                 previousState = state;
                 
-                result = _states[(int)state++].Execute(data, _gameConfig);
+                result = States[(int)state++].Execute();
             }
 
-            return new StateResultData(previousState, result.NextCharacterPosition, result.MoveSpeed);
+            return new UpdatedStateData(previousState, result.NextCharacterPosition, result.MoveSpeed);
         }
     }
 }

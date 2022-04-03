@@ -2,6 +2,6 @@
 {
     public interface IFloorPointHolder
     {
-        float FloorPoint { get; }
+        void UpdateFloorData(IFloorData stateData);
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface ICharacterStateContext
     {
-        public StateResultData GetStateData(StateInitialData data);
+        public UpdatedStateData GetStateData();
     }
 }

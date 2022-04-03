@@ -2,61 +2,69 @@
 
 namespace Loderunner.Gameplay
 {
-    public class LadderClimbingState : CharacterStateBase
+    public class LadderClimbingState : CharacterStateBase<StateData>
     {
-        public override StateResult Execute(StateInitialData data, GameConfig gameConfig)
+        public LadderClimbingState(GameConfig gameConfig, ICharacterConfig characterConfig, StateData data)
+            : base(gameConfig, characterConfig, data)
         {
-            if (!data.ClimbingData.IsEmpty)
+        }
+
+        public override StateResult Execute()
+        {
+            if (_data.ClimbingData.IsEmpty)
             {
-                var moveSpeed = data.MovingData.VerticalMove * data.CharacterConfig.ClimbSpeed;
-                
-                var movement = new Vector2(0, moveSpeed * Time.deltaTime);
+                return new StateResult(true);
+            }
+            
+            var moveSpeed = _data.MovingData.VerticalMove * _characterConfig.ClimbSpeed;
 
-                var newPosition = data.MovingData.CharacterPosition;
+            var movement = new Vector2(0, moveSpeed * Time.deltaTime);
 
-                if (!data.MovingData.CharacterPosition.x.Equals(data.ClimbingData.Center))
+            var newPosition = _data.MovingData.CharacterPosition;
+
+            if (!_data.MovingData.CharacterPosition.x.Equals(_data.ClimbingData.Center))
+            {
+                newPosition = new Vector2(_data.ClimbingData.Center, _data.MovingData.CharacterPosition.y);
+            }
+
+            newPosition += movement;
+
+            // moving on ladder
+            if (movement != Vector2.zero 
+                && newPosition.y > _data.ClimbingData.Bottom 
+                && newPosition.y < _data.ClimbingData.Top)
+            {
+                return new StateResult(newPosition, moveSpeed);
+            }
+
+            if (_data.PreviousState == CharacterState.LadderClimbing)
+            {
+                // climbing finished
+                if (_data.MovingData.CharacterPosition.y >= _data.ClimbingData.Top
+                    || _data.MovingData.CharacterPosition.y <= _data.ClimbingData.Bottom)
                 {
-                    newPosition = new Vector2(data.ClimbingData.Center, data.MovingData.CharacterPosition.y);
+                    return new StateResult(true);
                 }
 
-                newPosition += movement;
-
-                // moving on ladder
-                if (movement != Vector2.zero && newPosition.y > data.ClimbingData.Bottom &&
-                    newPosition.y < data.ClimbingData.Top)
+                // prevent climbing lower than ladder bottom
+                if (_data.MovingData.VerticalMove < 0 && newPosition.y <= _data.ClimbingData.Bottom)
                 {
-                    return new StateResult(newPosition, moveSpeed);
+                    return new StateResult(new Vector2(_data.MovingData.CharacterPosition.x, _data.ClimbingData.Bottom));
                 }
 
-                if (data.PreviousState == CharacterState.LadderClimbing)
+                // prevent climbing higher than ladder top
+                if (_data.MovingData.VerticalMove > 0 && newPosition.y >= _data.ClimbingData.Top)
                 {
-                    // climbing finished
-                    if (data.MovingData.CharacterPosition.y >= data.ClimbingData.Top ||
-                        data.MovingData.CharacterPosition.y <= data.ClimbingData.Bottom)
-                    {
-                        return new StateResult(true);
-                    }
+                    return new StateResult(new Vector2(_data.MovingData.CharacterPosition.x, _data.ClimbingData.Top));
+                }
 
-                    // prevent climbing lower than ladder bottom
-                    if (data.MovingData.VerticalMove < 0 && newPosition.y <= data.ClimbingData.Bottom)
-                    {
-                        return new StateResult(new Vector2(data.MovingData.CharacterPosition.x, data.ClimbingData.Bottom));
-                    }
-
-                    // prevent climbing higher than ladder top
-                    if (data.MovingData.VerticalMove > 0 && newPosition.y >= data.ClimbingData.Top)
-                    {
-                        return new StateResult(new Vector2(data.MovingData.CharacterPosition.x, data.ClimbingData.Top));
-                    }
-
-                    // idle
-                    if (data.MovingData.VerticalMove == 0 
-                        && data.MovingData.HorizontalMove == 0 
-                        && data.MovingData.CharacterPosition.y > data.ClimbingData.Bottom 
-                        && data.MovingData.CharacterPosition.y < data.ClimbingData.Top)
-                    {
-                        return new StateResult(data.MovingData.CharacterPosition);
-                    }
+                // idle
+                if (_data.MovingData.VerticalMove == 0
+                    && _data.MovingData.HorizontalMove == 0
+                    && _data.MovingData.CharacterPosition.y > _data.ClimbingData.Bottom
+                    && _data.MovingData.CharacterPosition.y < _data.ClimbingData.Top)
+                {
+                    return new StateResult(_data.MovingData.CharacterPosition);
                 }
             }
 

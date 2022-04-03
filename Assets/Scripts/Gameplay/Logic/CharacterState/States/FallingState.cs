@@ -2,26 +2,30 @@
 
 namespace Loderunner.Gameplay
 {
-    public class FallingState : CharacterStateBase
+    public class FallingState : CharacterStateBase<StateData>
     {
-        public override StateResult Execute(StateInitialData data, GameConfig gameConfig)
+        public FallingState(GameConfig gameConfig, ICharacterConfig characterConfig, StateData data)
+            : base(gameConfig, characterConfig, data)
         {
-            if (data.IsGrounded || !data.ClimbingData.IsEmpty)
+        }
+
+        public override StateResult Execute()
+        {
+            if (_data.IsGrounded || !_data.ClimbingData.IsEmpty)
             {
                 return new StateResult(true);
             }
-            
-            var newPosition = new Vector2(data.FallPoint, data.MovingData.CharacterPosition.y);
-                
-            if (data.PreviousState == CharacterState.CrossbarCrawling)
+
+            var newPosition = new Vector2(_data.FallPoint, _data.MovingData.CharacterPosition.y);
+
+            if (_data.PreviousState == CharacterState.CrossbarCrawling)
             {
-                newPosition = data.MovingData.CharacterPosition;
+                newPosition = _data.MovingData.CharacterPosition;
             }
-                
-            var movement = new Vector2(0, -data.CharacterConfig.FallSpeed * Time.deltaTime);
+
+            var movement = new Vector2(0, -_characterConfig.FallSpeed * Time.deltaTime);
 
             return new StateResult(newPosition + movement);
-
         }
     }
 }

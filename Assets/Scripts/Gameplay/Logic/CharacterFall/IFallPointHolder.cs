@@ -2,12 +2,9 @@
 
 namespace Loderunner.Gameplay
 {
-    public interface IFallPointHolder
-    {
-        float FallPoint { get; }
-       
-        bool IsGrounded { get; }
-
+    public interface IFallPointHolder {
         void BeginToFallFromCrossbar(float characterPositionY);
+
+        void UpdateFallData(IFallStateData data);
     }
 }

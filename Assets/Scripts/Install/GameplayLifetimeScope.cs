@@ -25,14 +25,15 @@ namespace Loderunner.Install
 
         private void RegisterScriptableObjects(IContainerBuilder builder)
         {
-            builder.RegisterInstance(_configsHolder.PlayerConfig).AsImplementedInterfaces();
-            builder.RegisterInstance(_configsHolder.GameConfig).AsImplementedInterfaces();
+            builder.RegisterInstance(_configsHolder.PlayerConfig).AsSelf();
+            builder.RegisterInstance(_configsHolder.GameConfig).AsSelf();
         }
 
         private void RegisterTypes(IContainerBuilder builder)
         {
             builder.Register<AsyncEnumerableMessageBus>(Lifetime.Singleton).As<IAsyncEnumerablePublisher, IAsyncEnumerableReceiver>();
-            builder.Register<ICharacterStateContext, CharacterStateContext>(Lifetime.Scoped);
+            builder.Register<PlayerStateContext>(Lifetime.Scoped).AsSelf();
+            builder.Register<PlayerStateData>(Lifetime.Scoped).AsSelf();
             builder.Register<FallingOpportunityObserver>(Lifetime.Scoped).AsImplementedInterfaces();
         }
 

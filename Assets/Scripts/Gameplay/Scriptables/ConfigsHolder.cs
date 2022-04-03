@@ -6,10 +6,10 @@ namespace Loderunner.Gameplay
     [CreateAssetMenu(fileName = "ConfigsHolder", menuName = "ScriptableObjects/Configs holder", order = 1)]
     public class ConfigsHolder : ScriptableObject
     {
-        [SerializeField] private CharacterConfig _playerConfig;
+        [SerializeField] private PlayerConfig _playerConfig;
         [SerializeField] private GameConfig _gameConfig;
 
-        public CharacterConfig PlayerConfig => _playerConfig;
+        public PlayerConfig PlayerConfig => _playerConfig;
         public GameConfig GameConfig => _gameConfig;
     }
 
@@ -22,7 +22,7 @@ namespace Loderunner.Gameplay
     }
 
     [Serializable]
-    public class CharacterConfig : ICharacterConfig
+    public class PlayerConfig : ICharacterConfig
     {
         [SerializeField] private float _walkSpeed;
         [SerializeField] private float _climbSpeed;

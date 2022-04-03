@@ -8,19 +8,14 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public class PlayerPresenter : Presenter
+    public abstract class CharacterPresenter : Presenter
     {
         private readonly ICharacterStateContext _characterStateContext;
         private readonly IFallPointHolder _fallPointHolder;
         private readonly IFloorPointHolder _floorPointHolder;
+        private readonly StateData _stateData;
 
-        private ClimbingData _climbingData;
-        private CrawlingData _crawlingData;
-
-        private CharacterState _currentState;
-        private BorderType _borderType;
-        private bool _isNearLadder;
-        private CancellationTokenSource _unsubscribeTokenSource = new();
+        private readonly CancellationTokenSource _unsubscribeTokenSource = new();
 
         public event Action<Vector3, float> Moving;
         public event Action<Vector3, float> Climbing;
@@ -29,17 +24,15 @@ namespace Loderunner.Gameplay
         public event Action CrawlingFinished;
         public event Action<Vector3> Falling;
 
-        public CharacterConfig PlayerConfig { get; }
-        public GameConfig GameConfig { get; }
-        public int CharacterId => 1;
+        public abstract int CharacterId { get; }
 
-        public PlayerPresenter(CharacterConfig playerConfig, ICharacterStateContext characterStateContext,
-            GameConfig gameConfig, IAsyncEnumerableReceiver receiver, IFallPointHolder fallPointHolder, 
-            IFloorPointHolder floorPointHolder)
+        protected CharacterPresenter(ICharacterStateContext characterStateContext, IAsyncEnumerableReceiver receiver, 
+            IFallPointHolder fallPointHolder, IFloorPointHolder floorPointHolder, StateData stateData)
         {
             _characterStateContext = characterStateContext;
             _fallPointHolder = fallPointHolder;
             _floorPointHolder = floorPointHolder;
+            _stateData = stateData;
 
             bool IsCharacter(int characterId)
             {
@@ -47,9 +40,6 @@ namespace Loderunner.Gameplay
             }
 
             ((ICharacterFilter)_fallPointHolder).CharacterFilter = IsCharacter;
-
-            PlayerConfig = playerConfig;
-            GameConfig = gameConfig;
 
             receiver.Receive<EnterLadderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<ExitLadderMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
@@ -59,33 +49,39 @@ namespace Loderunner.Gameplay
             receiver.Receive<ExitCrossbarMessage>().Where(m => IsCharacter(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
         }
 
-        public void UpdateCharacterData(MovingData movingData)
+        public void UpdateCharacterMoveData(MovingData movingData)
         {
-            var data = _characterStateContext.GetStateData(new StateInitialData(movingData, PlayerConfig,
-                _climbingData, _crawlingData, _currentState, _borderType, 
-                _fallPointHolder.IsGrounded, _fallPointHolder.FallPoint, _floorPointHolder.FloorPoint));
+            _stateData.MovingData = movingData;
+        }
 
-            switch (data.CurrentState)
+        public void UpdateCharacterState()
+        {
+            _fallPointHolder.UpdateFallData(_stateData);
+            _floorPointHolder.UpdateFloorData(_stateData);
+            
+            var updatedStateData = _characterStateContext.GetStateData();
+
+            switch (updatedStateData.CurrentState)
             {
                 case CharacterState.Moving:
-                    ResetPlayerActivities(movingData.CharacterPosition);
-                    Moving?.Invoke(data.NextCharacterPosition, data.MoveSpeed);
+                    ResetPlayerActivities(_stateData.MovingData.CharacterPosition);
+                    Moving?.Invoke(updatedStateData.NextCharacterPosition, updatedStateData.MoveSpeed);
                     break;
                 case CharacterState.LadderClimbing:
-                    Climbing?.Invoke(data.NextCharacterPosition, data.MoveSpeed);
+                    Climbing?.Invoke(updatedStateData.NextCharacterPosition, updatedStateData.MoveSpeed);
                     break;
                 case CharacterState.CrossbarCrawling:
-                    Crawling?.Invoke(data.NextCharacterPosition, data.MoveSpeed);
+                    Crawling?.Invoke(updatedStateData.NextCharacterPosition, updatedStateData.MoveSpeed);
                     break;
                 case CharacterState.Falling:
-                    ResetPlayerActivities(movingData.CharacterPosition);
-                    Falling?.Invoke(data.NextCharacterPosition);
+                    ResetPlayerActivities(_stateData.MovingData.CharacterPosition);
+                    Falling?.Invoke(updatedStateData.NextCharacterPosition);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            _currentState = data.CurrentState;
+            _stateData.PreviousState = updatedStateData.CurrentState;
         }
 
         public override void Dispose()
@@ -95,49 +91,49 @@ namespace Loderunner.Gameplay
 
         private void ResetPlayerActivities(Vector2 playerPosition)
         {
-            if (_currentState == CharacterState.LadderClimbing)
+            if (_stateData.PreviousState == CharacterState.LadderClimbing)
             {
                 ClimbingFinished?.Invoke();
             }
 
-            if (_currentState == CharacterState.CrossbarCrawling)
+            if (_stateData.PreviousState == CharacterState.CrossbarCrawling)
             {
                 CrawlingFinished?.Invoke();
-                
+
                 _fallPointHolder.BeginToFallFromCrossbar(playerPosition.x);
 
-                _crawlingData = new CrawlingData();
+                _stateData.CrawlingData = new CrawlingData();
             }
         }
 
         private void OnEnterLadder(EnterLadderMessage message)
         {
-            _climbingData = message.Data;
+            _stateData.ClimbingData = message.Data;
         }
 
         private void OnExitLadder(ExitLadderMessage message)
         {
-            _climbingData = new ClimbingData();
+            _stateData.ClimbingData = new ClimbingData();
         }
 
         private void OnBorderReached(BorderReachedMessage message)
         {
-            _borderType |= message.Border;
+            _stateData.BorderReachedType |= message.Border;
         }
 
         private void OnMovedAwayFromBorder(MovedAwayFromBorderMessage message)
         {
-            _borderType &= ~message.Border;
+            _stateData.BorderReachedType &= ~message.Border;
         }
 
         private void OnEnterCrossbar(EnterCrossbarMessage message)
         {
-            _crawlingData = message.CrawlingData;
+            _stateData.CrawlingData = message.CrawlingData;
         }
 
         private void OnExitCrossbar(ExitCrossbarMessage message)
         {
-            _crawlingData = new CrawlingData(true);
+            _stateData.CrawlingData = new CrawlingData(true);
         }
     }
 }

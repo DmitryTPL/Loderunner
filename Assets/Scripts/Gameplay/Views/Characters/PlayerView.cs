@@ -32,7 +32,7 @@ namespace Loderunner.Gameplay
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
+
             _presenter.Moving -= OnMoving;
             _presenter.Climbing -= OnClimbing;
             _presenter.ClimbingFinished -= OnClimbingFinished;
@@ -46,7 +46,20 @@ namespace Loderunner.Gameplay
             var horizontalMove = Input.GetAxis("Horizontal");
             var verticalMove = Input.GetAxis("Vertical");
 
-            _presenter.UpdateCharacterData(new MovingData(horizontalMove, verticalMove, transform.position));
+            var removeBlockType = RemoveBlockType.None;
+
+            if (Input.GetAxis("RemoveBlockLeft") > float.Epsilon)
+            {
+                removeBlockType = RemoveBlockType.Left;
+            }
+            else if (Input.GetAxis("RemoveBlockRight") > float.Epsilon)
+            {
+                removeBlockType = RemoveBlockType.Right;
+            }
+
+            _presenter.UpdateCharacterMoveData(new MovingData(horizontalMove, verticalMove, transform.position));
+            _presenter.UpdatePlayerRemovingBlock(removeBlockType);
+            _presenter.UpdateCharacterState();
         }
 
         private void OnMoving(Vector3 newPosition, float moveSpeed)
@@ -90,18 +103,18 @@ namespace Loderunner.Gameplay
         private void OnFalling(Vector3 newPosition)
         {
             _animationHandler.ApplyAnimation(new FallingAnimationAction());
-            
+
             _rigidbody.MovePosition(newPosition);
         }
 
         private void OnCrawling(Vector3 newPosition, float moveSpeed)
         {
             var delta = newPosition.x - transform.position.x;
-            
+
             _animationHandler.ApplyAnimation(new CrawlAnimationAction(moveSpeed));
 
             _rigidbody.MovePosition(newPosition);
-            
+
             SetLookDirection(delta);
         }
 
