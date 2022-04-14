@@ -20,3 +20,7 @@ MonoBehaviour:
   _gameConfig:
     _cellSize: 0.16
     _movementThreshold: 0.01
+  _wallBlockRemoveConfig:
+    _removeTime: 0.5
+    _removedStateTime: 3
+    _restoreTime: 0.5

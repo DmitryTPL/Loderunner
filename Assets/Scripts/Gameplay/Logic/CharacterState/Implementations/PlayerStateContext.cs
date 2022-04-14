@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Loderunner.Gameplay
+﻿namespace Loderunner.Gameplay
 {
     public class PlayerStateContext : CharacterStateContext<PlayerStateData>
     {
@@ -13,6 +11,7 @@ namespace Loderunner.Gameplay
                 { (int)CharacterState.CrossbarCrawling, new CrossbarCrawlingState(gameConfig, characterConfig, stateData) },
                 { (int)CharacterState.LadderClimbing, new LadderClimbingState(gameConfig, characterConfig, stateData) },
                 { (int)CharacterState.Falling, new FallingState(gameConfig, characterConfig, stateData) },
+                { (int)CharacterState.RemoveBlock, new RemoveBlockState(gameConfig, characterConfig, stateData) },
             };
         }
     }

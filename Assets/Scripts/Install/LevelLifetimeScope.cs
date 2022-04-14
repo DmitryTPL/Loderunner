@@ -1,4 +1,5 @@
 ﻿using Loderunner.Gameplay;
+using UniTaskPubSub.AsyncEnumerable;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,12 +9,28 @@ namespace Loderunner.Install
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register<LadderPresenter>(Lifetime.Scoped);
-            builder.Register<WallBlockPresenter>(Lifetime.Scoped);
-            builder.Register<BorderPresenter>(Lifetime.Scoped);
-            builder.Register<SideToFallPresenter>(Lifetime.Scoped);
-            builder.Register<FloorPresenter>(Lifetime.Scoped);
-            builder.Register<CrossbarPresenter>(Lifetime.Scoped);
+            RegisterTypes(builder);
+            RegisterFactories(builder);
+        }
+
+        private void RegisterTypes(IContainerBuilder builder)
+        {
+            builder.Register<LadderPresenterFactory>(Lifetime.Singleton);
+            builder.Register<WallBlockPresenterFactory>(Lifetime.Singleton);
+            builder.Register<BorderPresenterFactory>(Lifetime.Singleton);
+            builder.Register<SideToFallPresenterFactory>(Lifetime.Singleton);
+            builder.Register<FloorPresenterFactory>(Lifetime.Singleton);
+            builder.Register<CrossbarPresenterFactory>(Lifetime.Singleton);
+        }
+        
+        private void RegisterFactories(IContainerBuilder builder)
+        {
+            builder.RegisterFactory<LadderPresenterFactory, LadderPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<WallBlockPresenterFactory, WallBlockPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<BorderPresenterFactory, BorderPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<SideToFallPresenterFactory, SideToFallPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<FloorPresenterFactory, FloorPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<CrossbarPresenterFactory, CrossbarPresenter>(Lifetime.Scoped);
         }
     }
 }

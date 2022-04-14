@@ -31,6 +31,8 @@ namespace Loderunner.Gameplay
         [Space, Header("Floor")] [SerializeField]
         private Transform _floorTop;
 
+        [SerializeField] private FloorView _floorView;
+
         private int _previousBlocksCount;
         private bool _previousCanFallLeft;
         private bool _previousCanFallRight;
@@ -116,6 +118,8 @@ namespace Loderunner.Gameplay
             _floorTop.position = new Vector2(transform.position.x, transform.position.y + CellSize);
 
             _previousBlocksCount = _blocksCount;
+
+            _floorView.WallBlocks = _blocks;
 
             RecalculateFallEdges();
             RecalculateBorders();

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VContainer;
 
@@ -7,11 +8,13 @@ namespace Loderunner.Service
         where TPresenter: Presenter
     {
         protected TPresenter _presenter;
+
+        public TPresenter Presenter => _presenter;
         
         [Inject]
-        public void Constructor(TPresenter presenter)
+        public void Constructor(Func<TPresenter> presenterFactory)
         {
-            _presenter = presenter;
+            _presenter = presenterFactory();
         }
 
         protected virtual void OnDestroy()

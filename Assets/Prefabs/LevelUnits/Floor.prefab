@@ -300,8 +300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _startingCellPosition: {x: 0, y: 0}
-  _blocksCountHorizontal: 0
-  _blocksCountVertical: 0
+  _blocksCount: 0
   _prefab: {fileID: 8076482265481427435, guid: a35e24b984cd5534dbddcf818c66417b, type: 3}
   _blocks: []
   _canFallFromLeft: 0
@@ -314,6 +313,7 @@ MonoBehaviour:
   _borderForLeftMovementCollider: {fileID: 5660303898821125777}
   _borderForRightMovementCollider: {fileID: 428624532408352697}
   _floorTop: {fileID: 4373541651888952730}
+  _floorView: {fileID: 7488040010084545965}
 --- !u!114 &7488040010084545965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,6 +327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _fallPoint: {fileID: 4373541651888952730}
+  _wallBlocks: []
 --- !u!61 &7266873850919506250
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -9,8 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4671164967759788783}
-  - component: {fileID: 4671164967759788782}
   - component: {fileID: 8076482265481427435}
+  - component: {fileID: 8389287337361216381}
+  - component: {fileID: 4671164967759788782}
+  - component: {fileID: 2185590683117177334}
   m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
@@ -33,6 +35,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8076482265481427435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4671164967759788776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 553813368ce74e41b0e1423e7a77c40d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animationHandler: {fileID: 8389287337361216381}
+--- !u!114 &8389287337361216381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4671164967759788776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 207de94f15604ddfa0896d55b7d37810, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &4671164967759788782
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -85,27 +112,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8076482265481427435
-MonoBehaviour:
+--- !u!95 &2185590683117177334
+Animator:
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4671164967759788776}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 553813368ce74e41b0e1423e7a77c40d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _wallType: 0
-  _collidersSize:
-    _leftEdge:
-      _offset: {x: 0, y: 0}
-      _size: {x: 0, y: 0}
-    _rightEdge:
-      _offset: {x: 0, y: 0}
-      _size: {x: 0, y: 0}
-    _central:
-      _offset: {x: 0, y: 0}
-      _size: {x: 0, y: 0}
-  _collider: {fileID: 0}
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 76b439ce6f7f4f64188b6907abb941b1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

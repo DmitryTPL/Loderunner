@@ -8,9 +8,11 @@ namespace Loderunner.Gameplay
     {
         [SerializeField] private PlayerConfig _playerConfig;
         [SerializeField] private GameConfig _gameConfig;
+        [SerializeField] private WallBlockRemoveConfig _wallBlockRemoveConfig;
 
         public PlayerConfig PlayerConfig => _playerConfig;
         public GameConfig GameConfig => _gameConfig;
+        public WallBlockRemoveConfig WallBlockRemoveConfig => _wallBlockRemoveConfig;
     }
 
     public interface ICharacterConfig
@@ -43,5 +45,17 @@ namespace Loderunner.Gameplay
 
         public float CellSize => _cellSize;
         public float MovementThreshold => _movementThreshold;
+    }
+    
+    [Serializable]
+    public class WallBlockRemoveConfig
+    {
+        [SerializeField] private float _removeTime;
+        [SerializeField] private float _removedStateTime;
+        [SerializeField] private float _restoreTime;
+
+        public float RemoveTime => _removeTime;
+        public float RemovedStateTime => _removedStateTime;
+        public float RestoreTime => _restoreTime;
     }
 }

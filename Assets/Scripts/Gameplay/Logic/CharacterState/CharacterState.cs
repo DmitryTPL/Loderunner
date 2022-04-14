@@ -2,6 +2,7 @@
 {
     public enum CharacterState
     {
+        RemoveBlock,
         CrossbarCrawling,
         LadderClimbing,
         Falling,

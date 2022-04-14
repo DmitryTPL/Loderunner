@@ -6,7 +6,7 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
     public class PlayerView : View<PlayerPresenter>, ICharacterInfo
     {
-        [SerializeField] private CharacterAnimationHandler _animationHandler;
+        [SerializeField] private AnimationHandler _animationHandler;
         [SerializeField] private CharacterType _characterType;
 
         private Rigidbody2D _rigidbody;
@@ -27,6 +27,7 @@ namespace Loderunner.Gameplay
             _presenter.Crawling += OnCrawling;
             _presenter.CrawlingFinished += OnCrawlingFinished;
             _presenter.Falling += OnFalling;
+            _presenter.BlockRemoving += OnBlockRemoving;
         }
 
         protected override void OnDestroy()
@@ -39,6 +40,8 @@ namespace Loderunner.Gameplay
             _presenter.Crawling -= OnCrawling;
             _presenter.CrawlingFinished -= OnCrawlingFinished;
             _presenter.Falling -= OnFalling;
+            _presenter.BlockRemoving -= OnBlockRemoving;
+            _presenter.BlockRemoved -= OnBlockRemoved;
         }
 
         private void FixedUpdate()
@@ -58,11 +61,11 @@ namespace Loderunner.Gameplay
             }
 
             _presenter.UpdateCharacterMoveData(new MovingData(horizontalMove, verticalMove, transform.position));
-            _presenter.UpdatePlayerRemovingBlock(removeBlockType);
+            _presenter.UpdatePlayerRemovingBlock(removeBlockType, transform.position);
             _presenter.UpdateCharacterState();
         }
 
-        private void OnMoving(Vector3 newPosition, float moveSpeed)
+        private void OnMoving(Vector2 newPosition, float moveSpeed)
         {
             var delta = newPosition.x - transform.position.x;
 
@@ -73,7 +76,7 @@ namespace Loderunner.Gameplay
             SetLookDirection(delta);
         }
 
-        private void OnClimbing(Vector3 newPosition, float moveSpeed)
+        private void OnClimbing(Vector2 newPosition, float moveSpeed)
         {
             _animationHandler.ApplyAnimation(new ClimbAnimationAction(moveSpeed));
 
@@ -100,14 +103,14 @@ namespace Loderunner.Gameplay
             _animationHandler.ApplyAnimation(new ClimbFinishedAnimationAction());
         }
 
-        private void OnFalling(Vector3 newPosition)
+        private void OnFalling(Vector2 newPosition)
         {
             _animationHandler.ApplyAnimation(new FallingAnimationAction());
 
             _rigidbody.MovePosition(newPosition);
         }
 
-        private void OnCrawling(Vector3 newPosition, float moveSpeed)
+        private void OnCrawling(Vector2 newPosition, float moveSpeed)
         {
             var delta = newPosition.x - transform.position.x;
 
@@ -121,6 +124,20 @@ namespace Loderunner.Gameplay
         private void OnCrawlingFinished()
         {
             _animationHandler.ApplyAnimation(new CrawlFinishedAnimationAction());
+        }
+        
+        private void OnBlockRemoving(Vector2 newPosition, RemoveBlockType removeBlockType)
+        {
+            _animationHandler.ApplyAnimation(new CharacterRemoveBlockAnimationAction());
+            
+            SetLookDirection(removeBlockType == RemoveBlockType.Right ? 1 : -1);
+            
+            _rigidbody.MovePosition(newPosition);
+        }
+
+        private void OnBlockRemoved()
+        {
+            _animationHandler.ApplyAnimation(new CharacterRemoveBlockFinishedAnimationAction());
         }
     }
 }
