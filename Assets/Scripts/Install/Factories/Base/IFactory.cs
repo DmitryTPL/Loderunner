@@ -3,7 +3,7 @@
 namespace Loderunner.Install
 {
     public interface IFactory<out T>
-        where T: IDisposable
+        where T : IDisposable
     {
         T Create();
     }

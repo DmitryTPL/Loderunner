@@ -13,7 +13,7 @@ namespace Loderunner.Gameplay
         private readonly CancellationTokenSource _unsubscribeTokenSource = new();
         private readonly LinkedList<IWallBlocksHolder> _wallBlocksHolders = new();
 
-        public int CharacterId { get; set; }
+        public int Id { get; set; }
 
         public WallBlockRemover(IAsyncEnumerableReceiver receiver)
         {
@@ -47,8 +47,14 @@ namespace Loderunner.Gameplay
                     return;
                 }
 
-                await foreach (var state in wallBlocksHolder.RemoveBlock(removeBlockType, characterPosition, removerId))
+                await foreach (var state in wallBlocksHolder.RemoveBlock(removeBlockType, characterPosition, removerId).WithCancellation(token))
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        await writer.YieldAsync(WallBlockLifeState.None);
+                        return;
+                    }
+                    
                     await writer.YieldAsync(state);
                 }
             });

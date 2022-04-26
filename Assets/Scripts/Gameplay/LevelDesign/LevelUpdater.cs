@@ -6,14 +6,14 @@ namespace Loderunner.Gameplay
     [ExecuteInEditMode]
     public class LevelUpdater : MonoBehaviour
     {
-        [SerializeField] private List<WallPlacer> _wallPlacers;
+        [SerializeField] private List<PlacerBase> _placers;
         
-        [ContextMenu("Recreate all walls")]
-        public void RecreateAllWalls()
+        [ContextMenu("Recreate all units")]
+        public void RecreateAll()
         {
-            foreach (var wallPlacer in _wallPlacers)
+            foreach (var placer in _placers)
             {
-                wallPlacer.RecreateBlocks();
+                placer.Recreate();
             }
         }
     }

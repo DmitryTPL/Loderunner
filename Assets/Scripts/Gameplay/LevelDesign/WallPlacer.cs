@@ -7,7 +7,7 @@ namespace Loderunner.Gameplay
     [ExecuteInEditMode]
     public class WallPlacer : PlacerBase
     {
-        [Header("Blocks")] [SerializeField, Range(0, 23)]
+        [Header("Blocks")] [SerializeField, Range(0, 28)]
         private int _blocksCount;
 
         [SerializeField] private WallBlockView _prefab;
@@ -60,17 +60,21 @@ namespace Loderunner.Gameplay
         }
 
         [ContextMenu("Recreate blocks")]
-        public void RecreateBlocks()
+        public override void Recreate()
         {
-            var blocks = _blocksCount;
-
+            base.Recreate();
+            
+            var blocks = _blocksCount;   
+            
             _blocksCount = 0;
-
-            Update();
+            
+            TryChangeBlocks();
 
             _blocksCount = blocks;
-
-            Update();
+            
+            _previousBlocksCount = 0;
+            _previousCanFallLeft = !_canFallFromLeft;
+            _previousHasBorderForLeftMovement = !_hasBorderForLeftMovement;
         }
 
         private void TryChangeFallEdges()
@@ -108,7 +112,7 @@ namespace Loderunner.Gameplay
                 {
                     var block = PrefabUtility.InstantiatePrefab(_prefab) as WallBlockView;
 
-                    block.transform.position = new Vector3(transform.position.x + i * CellSize, transform.position.y);
+                    block.transform.position = new Vector2(transform.position.x + i * CellSize, transform.position.y);
                     block.transform.parent = transform;
 
                     _blocks.Add(block);
@@ -139,34 +143,37 @@ namespace Loderunner.Gameplay
             var mainColliderWidth = CellSize * _blocks.Count;
             var mainColliderOffset = mainColliderWidth / 2;
 
+            var fallEdgeSize = new Vector2(CellSize / 4, CellSize / 2);
+
             if (_canFallFromLeft)
             {
-                mainColliderWidth -= _leftFallingPointCollider.size.x;
-                mainColliderOffset += _leftFallingPointCollider.size.x / 2;
-                _leftFallingPointCollider.offset = new Vector2(_leftFallingPointCollider.size.x / 2, 
-                    CellSize - _leftFallingPointCollider.size.y / 2);
+                _leftFallingPointCollider.size = fallEdgeSize;
+
+                mainColliderWidth -= fallEdgeSize.x;
+                mainColliderOffset += fallEdgeSize.x / 2;
+
+                _leftFallingPointCollider.offset = new Vector2(fallEdgeSize.x / 2, CellSize * 0.75f);
             }
 
             if (_canFallFromRight)
             {
-                mainColliderWidth -= _rightFallingPointCollider.size.x;
-                mainColliderOffset -= _rightFallingPointCollider.size.x / 2;
-                _rightFallingPointCollider.offset =
-                    new Vector2(CellSize * _blocks.Count - _rightFallingPointCollider.size.x / 2,
-                        CellSize - _rightFallingPointCollider.size.y / 2);
+                _rightFallingPointCollider.size = fallEdgeSize;
+
+                mainColliderWidth -= fallEdgeSize.x;
+                mainColliderOffset -= fallEdgeSize.x / 2;
+
+                _rightFallingPointCollider.offset = new Vector2(CellSize * _blocks.Count - fallEdgeSize.x / 2, CellSize * 0.75f);
             }
 
             _leftFallingPointCollider.enabled = _canFallFromLeft;
             _rightFallingPointCollider.enabled = _canFallFromRight;
 
-            _mainCollider.size = new Vector2(mainColliderWidth, _mainCollider.size.y);
-            _mainCollider.offset = new Vector2(mainColliderOffset, CellSize - _mainCollider.size.y / 2);
+            _mainCollider.size = new Vector2(mainColliderWidth, CellSize / 2);
+            _mainCollider.offset = new Vector2(mainColliderOffset, CellSize * 0.75f);
         }
 
         private void TryChangeBorders()
         {
-            _borderForRightMovementCollider.enabled = _hasBorderForRightMovement;
-
             if (_previousHasBorderForLeftMovement != _hasBorderForLeftMovement ||
                 _previousHasBorderForRightMovement != _hasBorderForRightMovement)
             {
@@ -182,19 +189,18 @@ namespace Loderunner.Gameplay
             }
 
             var offset = CellSize / 4 + 0.02f;
+            var borderSize = new Vector2(CellSize / 2, CellSize - offset);
 
             if (_hasBorderForLeftMovement)
             {
-                _borderForLeftMovementCollider.size = new Vector2(CellSize / 2, CellSize - offset);
-                _borderForLeftMovementCollider.offset = new Vector2(CellSize * _blocks.Count - _borderForLeftMovementCollider.size.x / 2,
-                    _borderForLeftMovementCollider.size.y / 2 + offset / 2);
+                _borderForLeftMovementCollider.size = borderSize;
+                _borderForLeftMovementCollider.offset = new Vector2(CellSize * _blocks.Count - borderSize.x / 2, borderSize.y / 2 + offset / 2);
             }
 
             if (_hasBorderForRightMovement)
             {
-                _borderForRightMovementCollider.size = new Vector2(CellSize / 2, CellSize - offset);
-                _borderForRightMovementCollider.offset = new Vector2(_borderForRightMovementCollider.size.x / 2,
-                    _borderForRightMovementCollider.size.y / 2 + offset / 2);
+                _borderForRightMovementCollider.size = borderSize;
+                _borderForRightMovementCollider.offset = new Vector2(borderSize.x / 2, borderSize.y / 2 + offset / 2);
             }
 
             _borderForLeftMovementCollider.enabled = _hasBorderForLeftMovement;

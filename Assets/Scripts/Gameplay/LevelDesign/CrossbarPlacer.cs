@@ -1,5 +1,4 @@
-﻿using Loderunner.Service;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
@@ -30,18 +29,27 @@ namespace Loderunner.Gameplay
         {
             base.Update();
 
-            if (_previousLength != _length)
+            if (_previousLength == _length)
             {
-                var size = CellSize * _length;
-                
-                _previousLength = _length;
-                _spriteRenderer.size = new Vector2(size, CellSize);
-
-                _mainCollider.size = new Vector2(size - CellSize, CellSize / 2);
-                _mainCollider.offset = new Vector2(size / 2, CellSize - _mainCollider.size.y / 2);
-
-                _right.localPosition = new Vector2(_spriteRenderer.size.x, _right.localPosition.y);
+                return;
             }
+            
+            var size = CellSize * _length;
+                
+            _previousLength = _length;
+            _spriteRenderer.size = new Vector2(size, CellSize);
+
+            _mainCollider.size = new Vector2(size - CellSize, CellSize / 2);
+            _mainCollider.offset = new Vector2(size / 2, CellSize - _mainCollider.size.y / 2);
+
+            _right.localPosition = new Vector2(_spriteRenderer.size.x, _right.localPosition.y);
+        }
+
+        public override void Recreate()
+        {
+            base.Recreate();
+            
+            _previousLength = 0;
         }
     }
 }

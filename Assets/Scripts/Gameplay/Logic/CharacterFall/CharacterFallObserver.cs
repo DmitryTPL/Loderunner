@@ -7,7 +7,7 @@ using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
-    public class CharacterFallObserver : ICharacterFallObserver, IDisposable, ICharacterFilter
+    public class CharacterFallObserver : ICharacterFallObserver, ICharacterFilter
     {
         private float _leftFallPoint;
         private float _rightFallPoint;
@@ -20,7 +20,7 @@ namespace Loderunner.Gameplay
 
         private bool IsFalling => !IsGrounded && !IsOnLadder && !IsOnCrossbar;
         
-        public int CharacterId { get; set; }
+        public int Id { get; set; }
         public bool IsGrounded => _enteredGroundColliders.Count > 0;
         public bool IsOnLadder { get; private set; }
         public bool IsOnCrossbar { get; private set; }
@@ -35,6 +35,7 @@ namespace Loderunner.Gameplay
             receiver.Receive<ExitLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<EnterCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<ExitCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnCharacterNeedToFallInRemovedBlockMessage).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Dispose()
@@ -158,6 +159,12 @@ namespace Loderunner.Gameplay
         private void OnExitCrossbar(ExitCrossbarMessage obj)
         {
             IsOnCrossbar = false;
+        }
+
+        private void OnCharacterNeedToFallInRemovedBlockMessage(CharacterNeedToFallInRemovedBlockMessage message)
+        {
+            _fallPoint = message.FallPoint;
+            _enteredGroundColliders.Clear();
         }
     }
 }

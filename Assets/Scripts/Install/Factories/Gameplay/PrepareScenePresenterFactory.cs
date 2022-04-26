@@ -1,23 +1,19 @@
-﻿using System;
-using Loderunner.Gameplay;
-using UnityEngine;
+﻿using Loderunner.Gameplay;
 
 namespace Loderunner.Install
 {
     public class PrepareScenePresenterFactory : FactoryBase<PrepareScenePresenter>
     {
-        private readonly Func<Transform, PlayerView> _createPlayer;
-        private readonly Func<Transform, int, LevelView> _createLevel;
+        private readonly IGameObjectCreator _objectCreator;
 
-        public PrepareScenePresenterFactory(Func<Transform, PlayerView> createPlayerFactory, Func<Transform, int, LevelView> createLevelFactory)
+        public PrepareScenePresenterFactory(IGameObjectCreator objectCreator)
         {
-            _createPlayer = createPlayerFactory;
-            _createLevel = createLevelFactory;
+            _objectCreator = objectCreator;
         }
 
         protected override PrepareScenePresenter CreateEntryWithDependencies()
         {
-            return new PrepareScenePresenter(_createPlayer, _createLevel);
+            return new PrepareScenePresenter(_objectCreator);
         }
     }
 }

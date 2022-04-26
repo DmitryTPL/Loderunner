@@ -2,6 +2,6 @@
 {
     public interface ICharacterFilter
     {
-        int CharacterId { get; set; }
+        int Id { get; set; }
     }
 }

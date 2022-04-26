@@ -1,3 +1,4 @@
+using System;
 using Loderunner.Service;
 using UnityEngine;
 
@@ -6,13 +7,19 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
     public class PlayerView : View<PlayerPresenter>, ICharacterInfo
     {
+        private const string HorizontalAxisName = "Horizontal";
+        private const string VerticalAxisName = "Vertical";
+        private const string RemoveBlockLeftAxisName = "RemoveBlockLeft";
+        private const string RemoveBlockRightAxisName = "RemoveBlockRight";
+        
         [SerializeField] private AnimationHandler _animationHandler;
         [SerializeField] private CharacterType _characterType;
 
         private Rigidbody2D _rigidbody;
 
         public CharacterType CharacterType => _characterType;
-        public int CharacterId => _presenter.CharacterId;
+        public int CharacterId => _presenter.Id;
+        public Vector2 Position => transform.position;
 
         private void Awake()
         {
@@ -28,12 +35,11 @@ namespace Loderunner.Gameplay
             _presenter.CrawlingFinished += OnCrawlingFinished;
             _presenter.Falling += OnFalling;
             _presenter.BlockRemoving += OnBlockRemoving;
+            _presenter.BlockRemoved += OnBlockRemoved;
         }
 
-        protected override void OnDestroy()
+        protected void OnDestroy()
         {
-            base.OnDestroy();
-
             _presenter.Moving -= OnMoving;
             _presenter.Climbing -= OnClimbing;
             _presenter.ClimbingFinished -= OnClimbingFinished;
@@ -46,16 +52,16 @@ namespace Loderunner.Gameplay
 
         private void FixedUpdate()
         {
-            var horizontalMove = Input.GetAxis("Horizontal");
-            var verticalMove = Input.GetAxis("Vertical");
+            var horizontalMove = Input.GetAxis(HorizontalAxisName);
+            var verticalMove = Input.GetAxis(VerticalAxisName);
 
             var removeBlockType = RemoveBlockType.None;
 
-            if (Input.GetAxis("RemoveBlockLeft") > float.Epsilon)
+            if (Input.GetAxis(RemoveBlockLeftAxisName) > float.Epsilon)
             {
                 removeBlockType = RemoveBlockType.Left;
             }
-            else if (Input.GetAxis("RemoveBlockRight") > float.Epsilon)
+            else if (Input.GetAxis(RemoveBlockRightAxisName) > float.Epsilon)
             {
                 removeBlockType = RemoveBlockType.Right;
             }

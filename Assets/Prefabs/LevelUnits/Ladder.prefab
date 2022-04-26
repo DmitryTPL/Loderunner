@@ -83,8 +83,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2554879474194581016}
   - component: {fileID: 5830668087785337857}
-  - component: {fileID: 2554879474194581019}
   - component: {fileID: 3617931469168753456}
+  - component: {fileID: 2554879474194581019}
   - component: {fileID: 6230427644432648481}
   - component: {fileID: 1893032372742980973}
   m_Layer: 0
@@ -127,6 +127,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _bottom: {fileID: 2333343405443806899}
   _top: {fileID: 6876167350086854337}
+--- !u!114 &3617931469168753456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2554879474194581017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed2c4063ce89447884a2439c6a05ee10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _startingCellPosition: {x: 0, y: 0}
+  _height: 1
+  _title: {fileID: 6876167350086854337}
+  _bottomCenter: {fileID: 2333343405443806899}
+  _mainCollider: {fileID: 6230427644432648481}
+  _leftCollider: {fileID: 7126265851332057576}
+  _rightCollider: {fileID: 1774767285403514468}
 --- !u!212 &2554879474194581019
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -168,35 +187,17 @@ SpriteRenderer:
   m_SortingLayerID: -282680631
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 975218fe3cb55fc4598077257bae2cb3, type: 3}
+  m_Sprite: {fileID: 1966857025, guid: 9ca3e624c879eac44be79119ab92ccbb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 0.16, y: 0.16}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3617931469168753456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2554879474194581017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed2c4063ce89447884a2439c6a05ee10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _startingCellPosition: {x: 0, y: 0}
-  _height: 1
-  _title: {fileID: 6876167350086854337}
-  _mainCollider: {fileID: 6230427644432648481}
-  _leftCollider: {fileID: 7126265851332057576}
-  _rightCollider: {fileID: 1774767285403514468}
 --- !u!61 &6230427644432648481
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -214,8 +215,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
-    oldSize: {x: 0.16, y: 0.16}
-    newSize: {x: 0.16, y: 0.16}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 2
     adaptiveTiling: 0

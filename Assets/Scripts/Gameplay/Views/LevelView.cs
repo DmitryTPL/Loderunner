@@ -5,8 +5,11 @@ namespace Loderunner.Gameplay
 {
     public class LevelView : View<LevelPresenter>
     {
-        [SerializeField] private Transform _playerStartPosition;
-        
-        public Transform PlayerStartPosition => _playerStartPosition;
+        [SerializeField] private BoxCollider2D _boundsCollider;
+
+        private void Start()
+        {
+            _presenter.SetCameraBounds(_boundsCollider.bounds);
+        }
     }
 }

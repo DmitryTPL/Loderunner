@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using Loderunner.Service;
@@ -8,14 +7,11 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public abstract class CharacterPresenter : Presenter, ICharacterFilter
+    public abstract class CharacterPresenter : Presenter, ICharacterFilter, ICharacter
     {
         private readonly ICharacterStateContext _characterStateContext;
         private readonly ICharacterFallObserver _characterFallObserver;
         private readonly StateData _stateData;
-
-        protected readonly CancellationTokenSource _unsubscribeTokenSource = new();
-
         public event Action<Vector2, float> Moving;
         public event Action<Vector2, float> Climbing;
         public event Action ClimbingFinished;
@@ -23,7 +19,9 @@ namespace Loderunner.Gameplay
         public event Action CrawlingFinished;
         public event Action<Vector2> Falling;
 
-        public abstract int CharacterId { get; set; }
+        public abstract int Id { get; set; }
+        public bool CanAct { get; private set; }
+        public Vector2 Position { get; private set; }
 
         protected CharacterPresenter(ICharacterStateContext characterStateContext, IAsyncEnumerableReceiver receiver, 
             ICharacterFallObserver characterFallObserver, StateData stateData)
@@ -32,23 +30,31 @@ namespace Loderunner.Gameplay
             _characterFallObserver = characterFallObserver;
             _stateData = stateData;
 
-            ((ICharacterFilter)_characterFallObserver).CharacterId = CharacterId;
+            ((ICharacterFilter)_characterFallObserver).Id = Id;
 
-            receiver.Receive<EnterLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<ExitLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<BorderReachedMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnBorderReached).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnMovedAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<EnterCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<ExitCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<EnterLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<ExitLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<BorderReachedMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnBorderReached).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnMovedAwayFromBorder).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<EnterCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<ExitCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<GameStartedMessage>().Subscribe(OnGameStarted).AddTo(_disposeCancellationTokenSource.Token);
         }
 
         public void UpdateCharacterMoveData(MovingData movingData)
         {
             _stateData.MovingData = movingData;
+
+            Position = movingData.CharacterPosition;
         }
 
         public void UpdateCharacterState()
         {
+            if (!CanAct)
+            {
+                return;
+            }
+            
             _characterFallObserver.UpdateFallData(_stateData);
             
             var updatedStateData = _characterStateContext.GetStateData();
@@ -56,11 +62,6 @@ namespace Loderunner.Gameplay
             ApplyState(updatedStateData);
 
             _stateData.PreviousState = updatedStateData.CurrentState;
-        }
-
-        public override void Dispose()
-        {
-            _unsubscribeTokenSource?.Dispose();
         }
 
         protected virtual void ApplyState(UpdatedStateData updatedStateData)
@@ -84,6 +85,11 @@ namespace Loderunner.Gameplay
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void OnGameStarted(GameStartedMessage message)
+        {
+            CanAct = true;
         }
 
         private void ResetPlayerActivities(Vector2 playerPosition)

@@ -11,6 +11,7 @@ namespace Loderunner.Install
         {
             _receiver = receiver;
         }
+        
         protected override CharacterFallObserver CreateEntryWithDependencies()
         {
             return new CharacterFallObserver(_receiver);

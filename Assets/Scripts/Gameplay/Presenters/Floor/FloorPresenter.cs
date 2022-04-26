@@ -57,12 +57,18 @@ namespace Loderunner.Gameplay
 
                 if (wallBlock == null)
                 {
-                    writer.YieldAsync(WallBlockLifeState.None);
+                    await writer.YieldAsync(WallBlockLifeState.None);
                     return;
                 }
 
-                await foreach (var state in wallBlock.TryRemove(removerId))
+                await foreach (var state in wallBlock.TryRemove(removerId).WithCancellation(token))
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        await writer.YieldAsync(WallBlockLifeState.None);
+                        return;
+                    }
+                    
                     await writer.YieldAsync(state);
                 }
             });
@@ -90,7 +96,7 @@ namespace Loderunner.Gameplay
                 }
             }
 
-            // character standing not on a wall block
+            // character is standing not on a wall block
             switch (removeBlockType)
             {
                 case RemoveBlockType.Left:

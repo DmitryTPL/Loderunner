@@ -42,9 +42,11 @@ namespace Loderunner.Gameplay
     {
         [SerializeField] private float _cellSize;
         [SerializeField] private float _movementThreshold;
+        [SerializeField] private float _smoothPlayerCameraMovementRatio;
 
         public float CellSize => _cellSize;
         public float MovementThreshold => _movementThreshold;
+        public float SmoothPlayerCameraMovementRatio => _smoothPlayerCameraMovementRatio;
     }
     
     [Serializable]

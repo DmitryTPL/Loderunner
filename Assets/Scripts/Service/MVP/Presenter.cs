@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Threading;
 
 namespace Loderunner.Service
 {
     public abstract class Presenter: IDisposable
     {
-        public Guid Id { get; }
+        protected CancellationTokenSource _disposeCancellationTokenSource = new();
+        
+        public Guid Guid { get; }
 
-        public Presenter()
+        protected Presenter()
         {
-            Id = Guid.NewGuid();
+            Guid = Guid.NewGuid();
         }
         
         public virtual void Dispose()
         {
+            _disposeCancellationTokenSource.Cancel();
         }
     }
 }

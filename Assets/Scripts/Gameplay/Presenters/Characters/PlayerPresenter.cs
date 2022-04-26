@@ -8,6 +8,7 @@ namespace Loderunner.Gameplay
 {
     public sealed class PlayerPresenter : CharacterPresenter
     {
+        private readonly IAsyncEnumerablePublisher _publisher;
         private readonly IWallBlockRemover _wallBlockRemover;
         private readonly GameConfig _gameConfig;
         private readonly PlayerStateData _playerStateData;
@@ -16,23 +17,25 @@ namespace Loderunner.Gameplay
         public event Action<Vector2, RemoveBlockType> BlockRemoving;
         public event Action BlockRemoved;
 
-        public override int CharacterId
+        public override int Id
         {
             get => 1;
             set => throw new ArgumentException("Unable to set player Id");
         }
 
-        public PlayerPresenter(PlayerStateContext playerStateContext, IAsyncEnumerableReceiver receiver, ICharacterFallObserver characterFallObserver,
-             IWallBlockRemover wallBlockRemover, GameConfig gameConfig)
+        public PlayerPresenter(PlayerStateContext playerStateContext, IAsyncEnumerableReceiver receiver, IAsyncEnumerablePublisher publisher,
+            ICharacterFallObserver characterFallObserver, IWallBlockRemover wallBlockRemover, GameConfig gameConfig)
             : base(playerStateContext, receiver, characterFallObserver, playerStateContext.StateData)
         {
+            _publisher = publisher;
             _wallBlockRemover = wallBlockRemover;
             _gameConfig = gameConfig;
             _playerStateData = playerStateContext.StateData;
 
-            (_wallBlockRemover as ICharacterFilter).CharacterId = CharacterId;
-            
-            receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnWallBlockRemovingBegan).AddTo(_unsubscribeTokenSource.Token);
+            _wallBlockRemover.Id = Id;
+
+            receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnWallBlockRemovingBegan)
+                .AddTo(_disposeCancellationTokenSource.Token);
         }
 
         public void UpdatePlayerRemovingBlock(RemoveBlockType blockType, Vector2 playerPosition)
@@ -41,19 +44,19 @@ namespace Loderunner.Gameplay
             {
                 return;
             }
-            
+
             if (!_isPlayerRemovingBlock)
             {
                 _isPlayerRemovingBlock = true;
                 _playerStateData.RemoveBlockType = blockType;
 
-                RemoveWall(blockType, playerPosition);
+                RemoveWall(blockType, playerPosition).Forget();
             }
         }
 
         private async UniTask RemoveWall(RemoveBlockType blockType, Vector2 playerPosition)
         {
-            await foreach (var state in _wallBlockRemover.RemoveBlock(blockType, playerPosition, CharacterId))
+            await foreach (var state in _wallBlockRemover.RemoveBlock(blockType, playerPosition, Id).WithCancellation(_disposeCancellationTokenSource.Token))
             {
                 switch (state)
                 {
@@ -75,6 +78,18 @@ namespace Loderunner.Gameplay
                 case CharacterState.RemoveBlock:
                     BlockRemoving?.Invoke(updatedStateData.NextCharacterPosition, _playerStateData.RemoveBlockType);
                     break;
+
+                case CharacterState.Moving:
+                case CharacterState.CrossbarCrawling:
+                case CharacterState.LadderClimbing:
+                case CharacterState.Falling:
+                    if (Math.Abs(updatedStateData.MoveSpeed) > 0)
+                    {
+                        _publisher.Publish(new PlayerMovedMessage(updatedStateData.NextCharacterPosition));
+                    }
+
+                    base.ApplyState(updatedStateData);
+                    break;
                 default:
                     base.ApplyState(updatedStateData);
                     break;
@@ -90,7 +105,7 @@ namespace Loderunner.Gameplay
                 _ => _playerStateData.MovingData.CharacterPosition.x
             };
 
-            _playerStateData.RemoveBlockCharacterAlignedPosition = 
+            _playerStateData.RemoveBlockCharacterAlignedPosition =
                 new Vector2(alignedPlayerPositionX, message.WallBlockPosition.y + _gameConfig.CellSize);
         }
     }

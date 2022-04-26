@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Loderunner.Gameplay;
 using Loderunner.Service;
@@ -11,16 +10,15 @@ namespace Loderunner.Install
 {
     public class GameplayLifetimeScope : LifetimeScope
     {
-        [Header("Player")] [SerializeField] private PlayerView _playerViewPrefab;
-        [Header("Levels")] [SerializeField] private List<LevelView> _levelPrefabs = new();
+        [Header("Player"), SerializeField] private PlayerView _playerViewPrefab;
+        [Header("Levels"), SerializeField] private List<LevelView> _levelPrefabs = new();
+        [SerializeField] private Transform _levelPosition;
         [SerializeField] private ConfigsHolder _configsHolder;
 
         protected override void Configure(IContainerBuilder builder)
         {
             RegisterScriptableObjects(builder);
             RegisterTypes(builder);
-            RegisterPrefabs(builder);
-            RegisterSceneComponents(builder);
             RegisterFactories(builder);
         }
 
@@ -33,6 +31,8 @@ namespace Loderunner.Install
 
         private void RegisterTypes(IContainerBuilder builder)
         {
+            builder.Register<IGameObjectCreator, GameObjectCreator>(Lifetime.Singleton);
+            builder.Register<LevelData>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<ITime, DefaultTimeHandler>(Lifetime.Singleton);
             builder.Register<AsyncEnumerableMessageBus>(Lifetime.Singleton).As<IAsyncEnumerablePublisher, IAsyncEnumerableReceiver>();
             builder.Register<PlayerStateData>(Lifetime.Scoped).AsSelf();
@@ -43,31 +43,25 @@ namespace Loderunner.Install
             builder.Register<PlayerPresenterFactory>(Lifetime.Singleton);
             builder.Register<CharacterFallObserverFactory>(Lifetime.Singleton);
             builder.Register<WallBlockRemoverFactory>(Lifetime.Singleton);
-        }
-
-        private void RegisterPrefabs(IContainerBuilder builder)
-        {
-            builder.RegisterComponent(_playerViewPrefab);
-        }
-
-        private void RegisterSceneComponents(IContainerBuilder builder)
-        {
-            builder.RegisterComponentInHierarchy<PrepareSceneView>();
+            builder.Register<CameraFollowPresenterFactory>(Lifetime.Singleton);
+            builder.Register<PlayerSpawnerPresenterFactory>(Lifetime.Singleton);
+            builder.Register<InitialCameraLevelPassagePresenterFactory>(Lifetime.Singleton);
         }
 
         private void RegisterFactories(IContainerBuilder builder)
         {
-            builder.RegisterFactory<Transform, PlayerView>(
-                container => { return parentTransform => container.Instantiate(_playerViewPrefab, parentTransform).GetComponent<PlayerView>(); },
-                Lifetime.Scoped);
+            builder.RegisterFactory<Transform, PlayerView>(container => 
+                parent => container.Instantiate(_playerViewPrefab, parent), Lifetime.Scoped);
 
-            builder.RegisterFactory<Transform, int, LevelView>(
-                container => { return (parentTransform, levelNumber) => container.Instantiate(_levelPrefabs[levelNumber - 1], parentTransform).GetComponent<LevelView>(); },
-                Lifetime.Scoped);
-            
+            builder.RegisterFactory<int, LevelView>(container => 
+                    levelNumber => container.Instantiate(_levelPrefabs[levelNumber - 1], _levelPosition), Lifetime.Scoped);
+
             builder.RegisterFactory<PrepareScenePresenterFactory, PrepareScenePresenter>(Lifetime.Scoped);
             builder.RegisterFactory<LevelPresenterFactory, LevelPresenter>(Lifetime.Scoped);
             builder.RegisterFactory<PlayerPresenterFactory, PlayerPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<CameraFollowPresenterFactory, CameraFollowPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<PlayerSpawnerPresenterFactory, PlayerSpawnerPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<InitialCameraLevelPassagePresenterFactory, InitialCameraLevelPassagePresenter>(Lifetime.Scoped);
 
             builder.RegisterFactory<CharacterFallObserverFactory, ICharacterFallObserver>(Lifetime.Scoped);
             builder.RegisterFactory<WallBlockRemoverFactory, IWallBlockRemover>(Lifetime.Scoped);

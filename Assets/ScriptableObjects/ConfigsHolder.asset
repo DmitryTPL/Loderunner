@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: ConfigsHolder
   m_EditorClassIdentifier: 
   _playerConfig:
-    _walkSpeed: 1.2
-    _climbSpeed: 1
-    _crawlSpeed: 1
-    _fallSpeed: 0.8
+    _walkSpeed: 3
+    _climbSpeed: 2
+    _crawlSpeed: 2
+    _fallSpeed: 1.5
   _gameConfig:
-    _cellSize: 0.16
+    _cellSize: 1
     _movementThreshold: 0.01
+    _smoothPlayerCameraMovementRatio: 0.5
   _wallBlockRemoveConfig:
     _removeTime: 0.5
     _removedStateTime: 3

@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
@@ -15,11 +16,6 @@ namespace Loderunner.Service
         public void Constructor(Func<TPresenter> presenterFactory)
         {
             _presenter = presenterFactory();
-        }
-
-        protected virtual void OnDestroy()
-        {
-            _presenter.Dispose();
         }
     }
 }
