@@ -19,7 +19,7 @@ namespace Loderunner.Gameplay
             _gameConfig = gameConfig;
             _levelData = levelData;
             
-            receiver.Receive<PlayerMovedMessage>().Subscribe(OnPlayerMoved).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<PlayerMovedMessage>().Subscribe(OnPlayerMoved).AddTo(DisposeCancellationToken);
         }
 
         public void SetOrthographicSize(float orthographicSize, float aspect)

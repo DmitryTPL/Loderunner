@@ -35,7 +35,8 @@ namespace Loderunner.Gameplay
             _wallBlockRemover.Id = Id;
 
             receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnWallBlockRemovingBegan)
-                .AddTo(_disposeCancellationTokenSource.Token);
+                .AddTo(DisposeCancellationToken);
+            receiver.Receive<CharacterReachedGoldMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnPlayerReachedGold).AddTo(DisposeCancellationToken);
         }
 
         public void UpdatePlayerRemovingBlock(RemoveBlockType blockType, Vector2 playerPosition)
@@ -56,7 +57,7 @@ namespace Loderunner.Gameplay
 
         private async UniTask RemoveWall(RemoveBlockType blockType, Vector2 playerPosition)
         {
-            await foreach (var state in _wallBlockRemover.RemoveBlock(blockType, playerPosition, Id).WithCancellation(_disposeCancellationTokenSource.Token))
+            await foreach (var state in _wallBlockRemover.RemoveBlock(blockType, playerPosition, Id).WithCancellation(DisposeCancellationToken))
             {
                 switch (state)
                 {
@@ -83,11 +84,8 @@ namespace Loderunner.Gameplay
                 case CharacterState.CrossbarCrawling:
                 case CharacterState.LadderClimbing:
                 case CharacterState.Falling:
-                    if (Math.Abs(updatedStateData.MoveSpeed) > 0)
-                    {
-                        _publisher.Publish(new PlayerMovedMessage(updatedStateData.NextCharacterPosition));
-                    }
-
+                    _publisher.Publish(new PlayerMovedMessage(updatedStateData.NextCharacterPosition));
+                    
                     base.ApplyState(updatedStateData);
                     break;
                 default:
@@ -107,6 +105,11 @@ namespace Loderunner.Gameplay
 
             _playerStateData.RemoveBlockCharacterAlignedPosition =
                 new Vector2(alignedPlayerPositionX, message.WallBlockPosition.y + _gameConfig.CellSize);
+        }
+
+        private void OnPlayerReachedGold(CharacterReachedGoldMessage message)
+        {
+            _publisher.Publish(new CharacterTookGoldMessage(message.GoldGuid, Id));
         }
     }
 }

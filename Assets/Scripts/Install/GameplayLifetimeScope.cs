@@ -13,7 +13,7 @@ namespace Loderunner.Install
         [Header("Player"), SerializeField] private PlayerView _playerViewPrefab;
         [Header("Levels"), SerializeField] private List<LevelView> _levelPrefabs = new();
         [SerializeField] private Transform _levelPosition;
-        [SerializeField] private ConfigsHolder _configsHolder;
+        [Header("Configs"), SerializeField] private ConfigsHolder _configsHolder;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -31,7 +31,8 @@ namespace Loderunner.Install
 
         private void RegisterTypes(IContainerBuilder builder)
         {
-            builder.Register<IGameObjectCreator, GameObjectCreator>(Lifetime.Singleton);
+            builder.Register<LevelCreator>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<PlayerCreator>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<LevelData>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<ITime, DefaultTimeHandler>(Lifetime.Singleton);
             builder.Register<AsyncEnumerableMessageBus>(Lifetime.Singleton).As<IAsyncEnumerablePublisher, IAsyncEnumerableReceiver>();
@@ -50,11 +51,11 @@ namespace Loderunner.Install
 
         private void RegisterFactories(IContainerBuilder builder)
         {
-            builder.RegisterFactory<Transform, PlayerView>(container => 
+            builder.RegisterFactory<Transform, PlayerView>(container =>
                 parent => container.Instantiate(_playerViewPrefab, parent), Lifetime.Scoped);
 
-            builder.RegisterFactory<int, LevelView>(container => 
-                    levelNumber => container.Instantiate(_levelPrefabs[levelNumber - 1], _levelPosition), Lifetime.Scoped);
+            builder.RegisterFactory<int, LevelView>(container =>
+                levelNumber => container.Instantiate(_levelPrefabs[levelNumber - 1], _levelPosition), Lifetime.Scoped);
 
             builder.RegisterFactory<PrepareScenePresenterFactory, PrepareScenePresenter>(Lifetime.Scoped);
             builder.RegisterFactory<LevelPresenterFactory, LevelPresenter>(Lifetime.Scoped);

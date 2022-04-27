@@ -4,9 +4,9 @@ namespace Loderunner.Install
 {
     public class PlayerSpawnerPresenterFactory : FactoryBase<PlayerSpawnerPresenter>
     {
-        private readonly IGameObjectCreator _creator;
+        private readonly IPlayerCreator _creator;
 
-        public PlayerSpawnerPresenterFactory(IGameObjectCreator creator)
+        public PlayerSpawnerPresenterFactory(IPlayerCreator creator)
         {
             _creator = creator;
         }

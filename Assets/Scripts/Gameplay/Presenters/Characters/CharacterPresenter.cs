@@ -32,13 +32,13 @@ namespace Loderunner.Gameplay
 
             ((ICharacterFilter)_characterFallObserver).Id = Id;
 
-            receiver.Receive<EnterLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_disposeCancellationTokenSource.Token);
-            receiver.Receive<ExitLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_disposeCancellationTokenSource.Token);
-            receiver.Receive<BorderReachedMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnBorderReached).AddTo(_disposeCancellationTokenSource.Token);
-            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnMovedAwayFromBorder).AddTo(_disposeCancellationTokenSource.Token);
-            receiver.Receive<EnterCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_disposeCancellationTokenSource.Token);
-            receiver.Receive<ExitCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_disposeCancellationTokenSource.Token);
-            receiver.Receive<GameStartedMessage>().Subscribe(OnGameStarted).AddTo(_disposeCancellationTokenSource.Token);
+            receiver.Receive<EnterLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(DisposeCancellationToken);
+            receiver.Receive<ExitLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitLadder).AddTo(DisposeCancellationToken);
+            receiver.Receive<BorderReachedMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnBorderReached).AddTo(DisposeCancellationToken);
+            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnMovedAwayFromBorder).AddTo(DisposeCancellationToken);
+            receiver.Receive<EnterCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(DisposeCancellationToken);
+            receiver.Receive<ExitCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(DisposeCancellationToken);
+            receiver.Receive<GameStartedMessage>().Subscribe(OnGameStarted).AddTo(DisposeCancellationToken);
         }
 
         public void UpdateCharacterMoveData(MovingData movingData)

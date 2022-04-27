@@ -4,16 +4,16 @@ namespace Loderunner.Gameplay
 {
     public class PrepareScenePresenter : Presenter
     {
-        private readonly IGameObjectCreator _objectCreator;
+        private readonly ILevelCreator _levelCreator;
 
-        public PrepareScenePresenter(IGameObjectCreator objectCreator)
+        public PrepareScenePresenter(ILevelCreator levelCreator)
         {
-            _objectCreator = objectCreator;
+            _levelCreator = levelCreator;
         }
 
         public void CreateLevel(int levelIndex)
         {
-            _objectCreator.CreateLevel(levelIndex);
+            _levelCreator.CreateLevel(levelIndex);
         }
     }
 }

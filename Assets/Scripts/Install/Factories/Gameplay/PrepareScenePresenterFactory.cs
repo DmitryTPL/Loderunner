@@ -4,16 +4,16 @@ namespace Loderunner.Install
 {
     public class PrepareScenePresenterFactory : FactoryBase<PrepareScenePresenter>
     {
-        private readonly IGameObjectCreator _objectCreator;
+        private readonly ILevelCreator _creator;
 
-        public PrepareScenePresenterFactory(IGameObjectCreator objectCreator)
+        public PrepareScenePresenterFactory(ILevelCreator creator)
         {
-            _objectCreator = objectCreator;
+            _creator = creator;
         }
 
         protected override PrepareScenePresenter CreateEntryWithDependencies()
         {
-            return new PrepareScenePresenter(_objectCreator);
+            return new PrepareScenePresenter(_creator);
         }
     }
 }

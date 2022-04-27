@@ -2,9 +2,8 @@
 
 namespace Loderunner.Gameplay
 {
-    public interface IGameObjectCreator
+    public interface IPlayerCreator
     {
         GameObject CreatePlayer(Transform parent);
-        GameObject CreateLevel(int level);
     }
 }

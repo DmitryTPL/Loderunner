@@ -5,16 +5,16 @@ namespace Loderunner.Gameplay
 {
     public class PlayerSpawnerPresenter : Presenter
     {
-        private readonly IGameObjectCreator _creator;
+        private readonly IPlayerCreator _playerCreator;
 
-        public PlayerSpawnerPresenter(IGameObjectCreator creator)
+        public PlayerSpawnerPresenter(IPlayerCreator playerCreator)
         {
-            _creator = creator;
+            _playerCreator = playerCreator;
         }
 
         public void SpawnPlayer(Transform spawnPoint)
         {
-            _creator.CreatePlayer(spawnPoint);
+            _playerCreator.CreatePlayer(spawnPoint);
         }
     }
 }

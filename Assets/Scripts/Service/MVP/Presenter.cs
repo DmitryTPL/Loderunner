@@ -5,7 +5,9 @@ namespace Loderunner.Service
 {
     public abstract class Presenter: IDisposable
     {
-        protected CancellationTokenSource _disposeCancellationTokenSource = new();
+        private readonly CancellationTokenSource _disposeCancellationTokenSource = new();
+
+        protected CancellationToken DisposeCancellationToken => _disposeCancellationTokenSource.Token;
         
         public Guid Guid { get; }
 
