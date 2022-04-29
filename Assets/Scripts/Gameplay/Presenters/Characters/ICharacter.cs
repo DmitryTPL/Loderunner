@@ -6,5 +6,6 @@ namespace Loderunner.Gameplay
     {
         int Id { get; }
         Vector2 Position { get; }
+        CharacterType CharacterType { get; }
     }
 }

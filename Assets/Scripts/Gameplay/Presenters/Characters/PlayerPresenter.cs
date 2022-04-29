@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
+using Loderunner.Gameplay.Logic.Gameplay;
 using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
 
@@ -8,7 +10,8 @@ namespace Loderunner.Gameplay
 {
     public sealed class PlayerPresenter : CharacterPresenter
     {
-        private readonly IAsyncEnumerablePublisher _publisher;
+        public const int PlayerId = -1;
+        
         private readonly IWallBlockRemover _wallBlockRemover;
         private readonly GameConfig _gameConfig;
         private readonly PlayerStateData _playerStateData;
@@ -17,26 +20,23 @@ namespace Loderunner.Gameplay
         public event Action<Vector2, RemoveBlockType> BlockRemoving;
         public event Action BlockRemoved;
 
-        public override int Id
-        {
-            get => 1;
-            set => throw new ArgumentException("Unable to set player Id");
-        }
+        public override CharacterType CharacterType => CharacterType.Player;
 
         public PlayerPresenter(PlayerStateContext playerStateContext, IAsyncEnumerableReceiver receiver, IAsyncEnumerablePublisher publisher,
-            ICharacterFallObserver characterFallObserver, IWallBlockRemover wallBlockRemover, GameConfig gameConfig)
-            : base(playerStateContext, receiver, characterFallObserver, playerStateContext.StateData)
+            ICharacterFallObserver characterFallObserver, IWallBlockRemover wallBlockRemover, GameConfig gameConfig,
+            ILevelFinishedObserver levelFinishedObserver)
+            : base(PlayerId, playerStateContext, receiver, publisher, characterFallObserver, playerStateContext.StateData)
         {
-            _publisher = publisher;
             _wallBlockRemover = wallBlockRemover;
             _gameConfig = gameConfig;
             _playerStateData = playerStateContext.StateData;
+            
+            wallBlockRemover.BindCharacter(Id);
+            levelFinishedObserver.BindCharacter(Id);
 
-            _wallBlockRemover.Id = Id;
-
-            receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnWallBlockRemovingBegan)
+            receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnWallBlockRemovingBegan)
                 .AddTo(DisposeCancellationToken);
-            receiver.Receive<CharacterReachedGoldMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnPlayerReachedGold).AddTo(DisposeCancellationToken);
+            receiver.Receive<CharacterReachedGoldMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnPlayerReachedGold).AddTo(DisposeCancellationToken);
         }
 
         public void UpdatePlayerRemovingBlock(RemoveBlockType blockType, Vector2 playerPosition)
@@ -109,7 +109,7 @@ namespace Loderunner.Gameplay
 
         private void OnPlayerReachedGold(CharacterReachedGoldMessage message)
         {
-            _publisher.Publish(new CharacterTookGoldMessage(message.GoldGuid, Id));
+            _publisher.Publish(new CharacterCollectGoldMessage(message.GoldGuid, Id));
         }
     }
 }

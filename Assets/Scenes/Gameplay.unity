@@ -327,3 +327,4 @@ MonoBehaviour:
   - {fileID: 3834262732775394079, guid: 59eb7184ecda28944a761e62968fc95e, type: 3}
   _levelPosition: {fileID: 256563681}
   _configsHolder: {fileID: 11400000, guid: 8f2000e6f14db9f43be90929c1b9e530, type: 2}
+  _levelsConfigsHolder: {fileID: 11400000, guid: 3da54214c0f9e8448a35c6bffc7ef6a5, type: 2}

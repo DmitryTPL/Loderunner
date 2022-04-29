@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    [CreateAssetMenu(fileName = "ConfigsHolder", menuName = "ScriptableObjects/Configs holder", order = 1)]
+    [CreateAssetMenu(fileName = "Gameplay Configs", menuName = "ScriptableObjects/Gameplay Configs", order = 1)]
     public class ConfigsHolder : ScriptableObject
     {
         [SerializeField] private PlayerConfig _playerConfig;

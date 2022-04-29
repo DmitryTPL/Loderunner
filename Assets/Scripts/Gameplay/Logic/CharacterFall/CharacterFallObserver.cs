@@ -7,8 +7,9 @@ using UniTaskPubSub.AsyncEnumerable;
 
 namespace Loderunner.Gameplay
 {
-    public class CharacterFallObserver : ICharacterFallObserver, ICharacterFilter
+    public class CharacterFallObserver : ICharacterFallObserver
     {
+        private int _characterId;
         private float _leftFallPoint;
         private float _rightFallPoint;
         private float _bottomFallPoint;
@@ -20,29 +21,33 @@ namespace Loderunner.Gameplay
 
         private bool IsFalling => !IsGrounded && !IsOnLadder && !IsOnCrossbar;
         
-        public int Id { get; set; }
         public bool IsGrounded => _enteredGroundColliders.Count > 0;
         public bool IsOnLadder { get; private set; }
         public bool IsOnCrossbar { get; private set; }
 
         public CharacterFallObserver(IAsyncEnumerableReceiver receiver)
         {
-            receiver.Receive<ReachedSideToFallMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnReachedSideToFall).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<MovedAwayFromSideToFallMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnMoveAwayFromSideToFall).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<GotOffTheFloorMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<FloorReachedMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<EnterLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<ExitLadderMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<EnterCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<ExitCrossbarMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnCharacterNeedToFallInRemovedBlockMessage).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<ReachedSideToFallMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnReachedSideToFall).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<MovedAwayFromSideToFallMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnMoveAwayFromSideToFall).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<GotOffTheFloorMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<FloorReachedMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<EnterLadderMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<ExitLadderMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<EnterCrossbarMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<ExitCrossbarMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnCharacterNeedToFallInRemovedBlockMessage).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Dispose()
         {
             _unsubscribeTokenSource?.Dispose();
         }
-        
+
+        public void BindCharacter(int id)
+        {
+            _characterId = id;
+        }
+
         public void BeginToFallFromCrossbar(float characterPositionY)
         {
             _fallPoint = characterPositionY;

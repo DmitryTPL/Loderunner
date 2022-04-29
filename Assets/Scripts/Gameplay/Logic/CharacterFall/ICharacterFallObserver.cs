@@ -2,7 +2,7 @@
 
 namespace Loderunner.Gameplay
 {
-    public interface ICharacterFallObserver : IDisposable
+    public interface ICharacterFallObserver : IBoundToCharacter, IDisposable
     {
         void BeginToFallFromCrossbar(float characterPositionY);
 

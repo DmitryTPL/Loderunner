@@ -6,7 +6,7 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(SpriteRenderer))]
     public class LadderPlacer : PlacerBase
     {
-        [SerializeField, Range(1, 23)] private int _height;
+        [SerializeField, Range(1, 23)] protected int _height;
         [SerializeField] private Transform _title;
         [SerializeField] private Transform _bottomCenter;
         [SerializeField] private BoxCollider2D _mainCollider;
@@ -37,6 +37,11 @@ namespace Loderunner.Gameplay
                 return;
             }
 
+            ChangeLadder();
+        }
+
+        protected virtual void ChangeLadder()
+        {
             var size = new Vector2(CellSize, CellSize * _height);
             var offset = new Vector2(CellSize / 2, size.y / 2);
 
@@ -57,6 +62,7 @@ namespace Loderunner.Gameplay
             _bottomCenter.localPosition = new Vector2(CellSize / 2, 0);
         }
 
+        [ContextMenu("Recreate ladder")]
         public override void Recreate()
         {
             base.Recreate();

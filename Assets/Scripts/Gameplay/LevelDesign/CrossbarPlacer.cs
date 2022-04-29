@@ -45,6 +45,7 @@ namespace Loderunner.Gameplay
             _right.localPosition = new Vector2(_spriteRenderer.size.x, _right.localPosition.y);
         }
 
+        [ContextMenu("Recreate crossbar")]
         public override void Recreate()
         {
             base.Recreate();

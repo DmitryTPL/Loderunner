@@ -16,7 +16,7 @@ namespace Loderunner.Gameplay
         {
             _publisher = publisher;
 
-            receiver.Receive<CharacterTookGoldMessage>().Where(m => m.GoldGuid.Equals(Guid)).Subscribe(OnCharacterTookGold).AddTo(DisposeCancellationToken);
+            receiver.Receive<CharacterCollectGoldMessage>().Where(m => m.GoldGuid.Equals(Guid)).Subscribe(OnCharacterTookGold).AddTo(DisposeCancellationToken);
         }
 
         public void CharacterReachedGold(ICharacterInfo characterView)
@@ -24,7 +24,7 @@ namespace Loderunner.Gameplay
             _publisher.Publish(new CharacterReachedGoldMessage(characterView.CharacterId, Guid));
         }
 
-        private void OnCharacterTookGold(CharacterTookGoldMessage obj)
+        private void OnCharacterTookGold(CharacterCollectGoldMessage obj)
         {
             GoldHasBeenTaken?.Invoke();
             Dispose();

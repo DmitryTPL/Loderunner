@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public interface IWallBlockRemover : ICharacterFilter, IDisposable
+    public interface IWallBlockRemover : IBoundToCharacter, IDisposable
     {
         IUniTaskAsyncEnumerable<WallBlockLifeState> RemoveBlock(RemoveBlockType removeBlockType, Vector2 characterPosition, int removerId);
     }

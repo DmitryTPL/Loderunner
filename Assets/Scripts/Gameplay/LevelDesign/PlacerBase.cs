@@ -24,7 +24,7 @@ namespace Loderunner.Gameplay
                 transform.localPosition = new Vector2(_startingCellPosition.x * CellSize, _startingCellPosition.y * CellSize);
             }
         }
-
+        
         public virtual void Recreate()
         {
             _previousCellPosition = new Vector2Int();

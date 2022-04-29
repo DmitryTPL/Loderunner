@@ -27,6 +27,8 @@ namespace Loderunner.Install
             builder.Register<FloorPresenterFactory>(Lifetime.Singleton);
             builder.Register<CrossbarPresenterFactory>(Lifetime.Singleton);
             builder.Register<GoldPresenterFactory>(Lifetime.Singleton);
+            builder.Register<FinalLadderPresenterFactory>(Lifetime.Singleton);
+            builder.Register<LevelExitPresenterFactory>(Lifetime.Singleton);
         }
 
         private void RegisterFactories(IContainerBuilder builder)
@@ -42,6 +44,8 @@ namespace Loderunner.Install
             builder.RegisterFactory<FloorPresenterFactory, FloorPresenter>(Lifetime.Scoped);
             builder.RegisterFactory<CrossbarPresenterFactory, CrossbarPresenter>(Lifetime.Scoped);
             builder.RegisterFactory<GoldPresenterFactory, GoldPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<FinalLadderPresenterFactory, FinalLadderPresenter>(Lifetime.Scoped);
+            builder.RegisterFactory<LevelExitPresenterFactory, LevelExitPresenter>(Lifetime.Scoped);
         }
     }
 }

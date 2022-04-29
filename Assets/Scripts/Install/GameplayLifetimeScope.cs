@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Loderunner.Gameplay;
+using Loderunner.Gameplay.Logic.Gameplay;
 using Loderunner.Service;
 using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Loderunner.Install
         [Header("Levels"), SerializeField] private List<LevelView> _levelPrefabs = new();
         [SerializeField] private Transform _levelPosition;
         [Header("Configs"), SerializeField] private ConfigsHolder _configsHolder;
+        [SerializeField] private LevelsConfigsHolder _levelsConfigsHolder;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -27,6 +29,7 @@ namespace Loderunner.Install
             builder.RegisterInstance(_configsHolder.PlayerConfig).AsSelf();
             builder.RegisterInstance(_configsHolder.GameConfig).AsSelf();
             builder.RegisterInstance(_configsHolder.WallBlockRemoveConfig).AsSelf();
+            builder.RegisterInstance(_levelsConfigsHolder.Levels).As<IReadOnlyList<LevelConfig>>();
         }
 
         private void RegisterTypes(IContainerBuilder builder)
@@ -38,6 +41,7 @@ namespace Loderunner.Install
             builder.Register<AsyncEnumerableMessageBus>(Lifetime.Singleton).As<IAsyncEnumerablePublisher, IAsyncEnumerableReceiver>();
             builder.Register<PlayerStateData>(Lifetime.Scoped).AsSelf();
             builder.Register<PlayerStateContext>(Lifetime.Scoped).AsSelf();
+            builder.Register<LevelFinishedObserver>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.Register<PrepareScenePresenterFactory>(Lifetime.Singleton);
             builder.Register<LevelPresenterFactory>(Lifetime.Singleton);

@@ -1,4 +1,3 @@
-using System;
 using Loderunner.Service;
 using UnityEngine;
 
@@ -36,6 +35,8 @@ namespace Loderunner.Gameplay
             _presenter.Falling += OnFalling;
             _presenter.BlockRemoving += OnBlockRemoving;
             _presenter.BlockRemoved += OnBlockRemoved;
+
+            _presenter.CharacterCreated();
         }
 
         protected void OnDestroy()

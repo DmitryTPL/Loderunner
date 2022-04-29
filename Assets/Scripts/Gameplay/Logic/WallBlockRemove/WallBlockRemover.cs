@@ -8,22 +8,27 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public class WallBlockRemover : IDisposable, ICharacterFilter, IWallBlockRemover
+    public class WallBlockRemover : IWallBlockRemover
     {
         private readonly CancellationTokenSource _unsubscribeTokenSource = new();
         private readonly LinkedList<IWallBlocksHolder> _wallBlocksHolders = new();
 
-        public int Id { get; set; }
+        private int _characterId;
 
         public WallBlockRemover(IAsyncEnumerableReceiver receiver)
         {
-            receiver.Receive<GotOffTheFloorMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<FloorReachedMessage>().Where(m => this.IsCharacterMatch(m.CharacterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<GotOffTheFloorMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<FloorReachedMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Dispose()
         {
             _unsubscribeTokenSource.Dispose();
+        }
+
+        public void BindCharacter(int id)
+        {
+            _characterId = id;
         }
 
         public IUniTaskAsyncEnumerable<WallBlockLifeState> RemoveBlock(RemoveBlockType removeBlockType, Vector2 characterPosition, int removerId)

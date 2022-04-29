@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3e48ee1fb9460945a1e32f762ca8eff, type: 3}
-  m_Name: ConfigsHolder
+  m_Name: GameplayConfigs
   m_EditorClassIdentifier: 
   _playerConfig:
     _walkSpeed: 4
