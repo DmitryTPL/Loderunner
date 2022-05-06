@@ -20,9 +20,10 @@ namespace Loderunner.Gameplay
             _levelData.CameraBounds = bounds;
         }
 
-        public void LevelCreated(int levelNumber)
+        public void LevelCreated(int levelNumber, Matrix<int> map)
         {
             _levelData.LevelNumber = levelNumber;
+            _levelData.Map = map;
             _publisher.Publish(new LevelCreatedMessage(levelNumber));
         }
     }

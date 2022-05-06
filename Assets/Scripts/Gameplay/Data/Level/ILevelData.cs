@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Loderunner.Service;
+using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
@@ -6,5 +7,6 @@ namespace Loderunner.Gameplay
     {
         Bounds CameraBounds { get; }
         int LevelNumber { get; }
+        Matrix<int> Map { get; }
     }
 }

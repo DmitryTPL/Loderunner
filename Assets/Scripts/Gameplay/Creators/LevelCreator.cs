@@ -7,14 +7,18 @@ namespace Loderunner.Gameplay
     {
         private readonly Func<int, LevelView> _levelCreator;
 
-        public LevelCreator(Func<Transform, PlayerView> playerCreator, Func<int, LevelView> levelCreator)
+        public LevelCreator(Func<int, LevelView> levelCreator)
         {
             _levelCreator = levelCreator;
         }
 
         public GameObject CreateLevel(int level)
         {
-            return _levelCreator(level).gameObject;
+            var levelObject = _levelCreator(level);
+
+            levelObject.SetLevelNumber(level);
+            
+            return levelObject.gameObject;
         }
     }
 }

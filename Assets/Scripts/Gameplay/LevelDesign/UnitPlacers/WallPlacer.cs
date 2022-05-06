@@ -7,7 +7,7 @@ namespace Loderunner.Gameplay
     [ExecuteInEditMode]
     public class WallPlacer : PlacerBase
     {
-        [Header("Blocks")] [SerializeField, Range(0, 28)]
+        [Header("Blocks")] [SerializeField, Range(0, 100)]
         private int _blocksCount;
 
         [SerializeField] private WallBlockView _prefab;
@@ -38,6 +38,8 @@ namespace Loderunner.Gameplay
         private bool _previousCanFallRight;
         private bool _previousHasBorderForLeftMovement;
         private bool _previousHasBorderForRightMovement;
+
+        public int BlocksCount => _blocksCount;
 
         protected override void OnEnable()
         {

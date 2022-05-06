@@ -11,6 +11,8 @@ namespace Loderunner.Gameplay
         
         private Vector2 _previousCellPosition;
 
+        public Vector2Int CellPosition => _startingCellPosition;
+
         protected virtual void OnEnable()
         {
             _previousCellPosition = _startingCellPosition;

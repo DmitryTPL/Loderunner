@@ -26,7 +26,7 @@ namespace Loderunner.Gameplay
 
         public int Id => _id;
         public abstract CharacterType CharacterType { get; }
-        public bool CanAct { get; private set; }
+        public bool CanAct { get; protected set; }
         public Vector2 Position { get; private set; }
 
         protected CharacterPresenter(int id, ICharacterStateContext characterStateContext, IAsyncEnumerableReceiver receiver,

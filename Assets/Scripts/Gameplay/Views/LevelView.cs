@@ -6,6 +6,7 @@ namespace Loderunner.Gameplay
     public class LevelView : View<LevelPresenter>
     {
         [SerializeField] private BoxCollider2D _boundsCollider;
+        [SerializeField] private Matrix<int> _pathWeightMap;
 
         private int _levelNumber;
         
@@ -13,12 +14,17 @@ namespace Loderunner.Gameplay
         {
             _presenter.SetCameraBounds(_boundsCollider.bounds);
             
-            _presenter.LevelCreated(_levelNumber);
+            _presenter.LevelCreated(_levelNumber, _pathWeightMap);
         }
 
         public void SetLevelNumber(int levelNumber)
         {
             _levelNumber = levelNumber;
+        }
+
+        public void SetPathWeightMap(Matrix<int> pathWeightMap)
+        {
+            _pathWeightMap = pathWeightMap;
         }
     }
 }

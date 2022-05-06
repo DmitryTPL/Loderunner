@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using Loderunner.Gameplay.Logic.Gameplay;
@@ -37,6 +36,7 @@ namespace Loderunner.Gameplay
             receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnWallBlockRemovingBegan)
                 .AddTo(DisposeCancellationToken);
             receiver.Receive<CharacterReachedGoldMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnPlayerReachedGold).AddTo(DisposeCancellationToken);
+            receiver.Receive<PlayerReachedLevelExitMessage>().Subscribe(OnPlayerReachedLevelExit).AddTo(DisposeCancellationToken);
         }
 
         public void UpdatePlayerRemovingBlock(RemoveBlockType blockType, Vector2 playerPosition)
@@ -110,6 +110,11 @@ namespace Loderunner.Gameplay
         private void OnPlayerReachedGold(CharacterReachedGoldMessage message)
         {
             _publisher.Publish(new CharacterCollectGoldMessage(message.GoldGuid, Id));
+        }
+
+        private void OnPlayerReachedLevelExit(PlayerReachedLevelExitMessage obj)
+        {
+            CanAct = false;
         }
     }
 }

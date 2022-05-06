@@ -6,7 +6,7 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(SpriteRenderer))]
     public class LadderPlacer : PlacerBase
     {
-        [SerializeField, Range(1, 23)] protected int _height;
+        [SerializeField, Range(1, 100)] protected int _height;
         [SerializeField] private Transform _title;
         [SerializeField] private Transform _bottomCenter;
         [SerializeField] private BoxCollider2D _mainCollider;
@@ -15,6 +15,8 @@ namespace Loderunner.Gameplay
 
         private int _previousHeight;
         private SpriteRenderer _spriteRenderer;
+
+        public int Height => _height;
 
         private void Awake()
         {

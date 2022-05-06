@@ -6,12 +6,14 @@ namespace Loderunner.Gameplay
     [RequireComponent(typeof(SpriteRenderer))]
     public class CrossbarPlacer : PlacerBase
     {
-        [SerializeField, Range(1, 23)] private int _length;
+        [SerializeField, Range(1, 100)] private int _length;
         [SerializeField] private Transform _right;
         [SerializeField] private BoxCollider2D _mainCollider;
         
         private int _previousLength;
         private SpriteRenderer _spriteRenderer;
+
+        public int Length => _length;
 
         private void Awake()
         {

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3834262732775394079}
   - component: {fileID: 3070263485327373480}
   - component: {fileID: 4880671838167451826}
+  - component: {fileID: 6520597383880723181}
   m_Layer: 0
   m_Name: Level1
   m_TagString: Untagged
@@ -84,6 +85,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _boundsCollider: {fileID: 7533223839007898579}
+  _pathWeightMap:
+    _array: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000000000000000000000000000000000001000000ffffffffffffffffffffffffffffffffffffffffffffffff010000000100000001000000010000000100000001000000010000000100000001000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000000000000000000000000000000000000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000000000000000000000000000000000000000000000000000000000000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000000000000000000000000000000000000000000000000000000000000ffffffffffffffff01000000ffffffffffffffffffffffffffffffffffffffff01000000010000000100000001000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000ffffffffffffffff0100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000000000000000000000000000000000000000000000000000000000000100000001000000010000000100000001000000ffffffffffffffff01000000010000000100000001000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000ffffffffffffffff00000000000000000000000000000000000000000000000000000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000
+    _rows: 14
+    _columns: 28
 --- !u!114 &3070263485327373480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,6 +153,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27bbcbf68db4698b25bcab874a409fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _mapCreator: {fileID: 6520597383880723181}
+  _levelView: {fileID: 3834262732775394079}
   _placers:
   - {fileID: 1662324617051311091}
   - {fileID: 3957720128629697064}
@@ -164,7 +171,6 @@ MonoBehaviour:
   - {fileID: 1410564461453851475}
   - {fileID: 4611211104939477487}
   - {fileID: 514929901202687177}
-  - {fileID: 0}
   - {fileID: 454999584096546660}
   - {fileID: 4482676977221559249}
   - {fileID: 2162812399584538690}
@@ -182,6 +188,21 @@ MonoBehaviour:
   - {fileID: 978018271996582459}
   - {fileID: 1852927506064633451}
   - {fileID: 5505184129196308144}
+--- !u!114 &6520597383880723181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662324617006275472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4c09cf2280046e48bafa9dcf6b12969, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelLength: 28
+  _levelHeight: 14
+  _gridPainter: {fileID: 1216754084097250634}
 --- !u!1 &1662324617502733781
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +229,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1662324617502733781}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -261,7 +282,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 5.44, y: 4.16}
+  m_Size: {x: 28, y: 14}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -279,8 +300,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70779197433b42b898c22f8692b4ec0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _zoomCompensation: 2.85
-  _offset: {x: 2.72, y: 2}
+  _zoomCompensation: 2.83
+  _offset: {x: 0.17, y: -0.68}
+  _levelLength: 28
+  _levelHeight: 14
 --- !u!1 &1662324618714590515
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,6 +335,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1662324617502733780}
+  - {fileID: 3925704967909670576}
   m_Father: {fileID: 1662324617006275475}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -812,6 +836,52 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &7345820640237751502
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3925704967909670576}
+  - component: {fileID: 1216754084097250634}
+  m_Layer: 0
+  m_Name: Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3925704967909670576
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7345820640237751502}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1662324618714590514}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1216754084097250634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7345820640237751502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9fa8e7a73f54731bf8ef9ad8bd7c4d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _zoomCompensation: 2.83
+  _offset: {x: 0.17, y: -0.68}
 --- !u!1001 &21323848287211999
 PrefabInstance:
   m_ObjectHideFlags: 0

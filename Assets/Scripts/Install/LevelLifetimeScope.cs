@@ -29,6 +29,8 @@ namespace Loderunner.Install
             builder.Register<GoldPresenterFactory>(Lifetime.Singleton);
             builder.Register<FinalLadderPresenterFactory>(Lifetime.Singleton);
             builder.Register<LevelExitPresenterFactory>(Lifetime.Singleton);
+            
+            builder.Register<IPathFinder, AStarPathFinder>(Lifetime.Singleton);
         }
 
         private void RegisterFactories(IContainerBuilder builder)

@@ -10,7 +10,7 @@ namespace Loderunner.Gameplay
         {
             base.ChangeLadder();
 
-            _foldingScreen.localScale = new Vector3(1, _height, 1);
+            _foldingScreen.localScale = new Vector3(1, Height, 1);
         }
     }
 }
