@@ -13,9 +13,16 @@ namespace Loderunner.Service
         public TPresenter Presenter => _presenter;
         
         [Inject]
-        public void Constructor(Func<TPresenter> presenterFactory)
+        public void Constructor(TPresenter presenter)
         {
-            _presenter = presenterFactory();
+            _presenter = presenter;
+            
+            PresenterAttached();
+        }
+
+        protected virtual void PresenterAttached()
+        {
+            
         }
     }
 }

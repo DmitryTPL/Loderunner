@@ -26,7 +26,6 @@ namespace Loderunner.Gameplay
             };
 
             var zoom = SceneView.currentDrawingSceneView.camera.orthographicSize;
-            textStyle.fontSize = (int)(10 / zoom);
 
             var xOffset = _offset.x;
             var yOffset = _offset.y - zoom / _zoomCompensation;
