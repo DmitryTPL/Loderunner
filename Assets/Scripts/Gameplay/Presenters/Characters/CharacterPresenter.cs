@@ -10,11 +10,11 @@ namespace Loderunner.Gameplay
 {
     public abstract class CharacterPresenter : Presenter, ICharacter
     {
-        private readonly int _id;
         private readonly ICharacterStateContext _characterStateContext;
         private readonly ICharacterFallObserver _characterFallObserver;
         private readonly StateData _stateData;
 
+        protected readonly IAsyncEnumerableReceiver _receiver;
         protected readonly IAsyncEnumerablePublisher _publisher;
 
         public event Action<Vector2, float> Moving;
@@ -24,34 +24,35 @@ namespace Loderunner.Gameplay
         public event Action CrawlingFinished;
         public event Action<Vector2> Falling;
 
-        public int Id => _id;
+        public int Id { get; private set; }
         public abstract CharacterType CharacterType { get; }
         public bool CanAct { get; protected set; }
-        public Vector2 Position { get; private set; }
+        public Vector2 Position { get; set; }
 
-        protected CharacterPresenter(int id, ICharacterStateContext characterStateContext, IAsyncEnumerableReceiver receiver,
+        protected CharacterPresenter(ICharacterStateContext characterStateContext, IAsyncEnumerableReceiver receiver,
             IAsyncEnumerablePublisher publisher, ICharacterFallObserver characterFallObserver, StateData stateData)
         {
-            _id = id;
             _characterStateContext = characterStateContext;
+            _receiver = receiver;
             _publisher = publisher;
             _characterFallObserver = characterFallObserver;
             _stateData = stateData;
-
-            characterFallObserver.BindCharacter(Id);
-
-            receiver.Receive<EnterLadderMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnEnterLadder).AddTo(DisposeCancellationToken);
-            receiver.Receive<ExitLadderMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnExitLadder).AddTo(DisposeCancellationToken);
-            receiver.Receive<BorderReachedMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnBorderReached).AddTo(DisposeCancellationToken);
-            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnMovedAwayFromBorder).AddTo(DisposeCancellationToken);
-            receiver.Receive<EnterCrossbarMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnEnterCrossbar).AddTo(DisposeCancellationToken);
-            receiver.Receive<ExitCrossbarMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnExitCrossbar).AddTo(DisposeCancellationToken);
-            receiver.Receive<GameStartedMessage>().Subscribe(OnGameStarted).AddTo(DisposeCancellationToken);
         }
 
-        public void CharacterCreated()
+        public virtual void CharacterCreated(int id)
         {
+            Id = id;
             _publisher.Publish(new CharacterCreatedMessage(Id, CharacterType));
+
+            _characterFallObserver.BindCharacter(Id);
+
+            _receiver.Receive<EnterLadderMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnEnterLadder).AddTo(DisposeCancellationToken);
+            _receiver.Receive<ExitLadderMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnExitLadder).AddTo(DisposeCancellationToken);
+            _receiver.Receive<BorderReachedMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnBorderReached).AddTo(DisposeCancellationToken);
+            _receiver.Receive<MovedAwayFromBorderMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnMovedAwayFromBorder).AddTo(DisposeCancellationToken);
+            _receiver.Receive<EnterCrossbarMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnEnterCrossbar).AddTo(DisposeCancellationToken);
+            _receiver.Receive<ExitCrossbarMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnExitCrossbar).AddTo(DisposeCancellationToken);
+            _receiver.Receive<GameStartedMessage>().Subscribe(OnGameStarted).AddTo(DisposeCancellationToken);
         }
 
         public void UpdateCharacterMoveData(MovingData movingData)

@@ -191,7 +191,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1662324617502733780
 Transform:
   m_ObjectHideFlags: 0
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _zoomCompensation: 2.83
-  _offset: {x: 0.17, y: -0.68}
+  _offset: {x: 0.1, y: -0.5}
   _levelLength: 28
   _levelHeight: 14
 --- !u!1 &1662324618714590515

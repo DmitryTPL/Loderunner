@@ -19,7 +19,6 @@ namespace Loderunner.Install
 
         private void RegisterTypes(IContainerBuilder builder)
         {
-            builder.Register<IPathFinder, AStarPathFinder>(Lifetime.Singleton);
             builder.Register<IGuardiansIdPool, GuardiansIdPool>(Lifetime.Singleton);
             
             builder.Register<GoldCreator>(Lifetime.Singleton).AsImplementedInterfaces();

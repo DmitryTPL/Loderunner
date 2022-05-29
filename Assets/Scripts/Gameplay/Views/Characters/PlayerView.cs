@@ -1,52 +1,36 @@
-using Loderunner.Service;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
     [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
-    public class PlayerView : View<PlayerPresenter>, ICharacterInfo
+    public class PlayerView : CharacterView<PlayerPresenter>
     {
         private const string HorizontalAxisName = "Horizontal";
         private const string VerticalAxisName = "Vertical";
         private const string RemoveBlockLeftAxisName = "RemoveBlockLeft";
         private const string RemoveBlockRightAxisName = "RemoveBlockRight";
-        
-        [SerializeField] private AnimationHandler _animationHandler;
-        [SerializeField] private CharacterType _characterType;
 
-        private Rigidbody2D _rigidbody;
+        public override CharacterType CharacterType => CharacterType.Player;
 
-        public CharacterType CharacterType => _characterType;
-        public int CharacterId => _presenter.Id;
-        public Vector2 Position => transform.position;
-
-        private void Awake()
+        protected override void Awake()
         {
-            _rigidbody = GetComponent<Rigidbody2D>();
+            base.Awake();
+            
+            CharacterId = -1;
         }
 
-        private void Start()
+        protected override void PresenterAttached()
         {
-            _presenter.Moving += OnMoving;
-            _presenter.Climbing += OnClimbing;
-            _presenter.ClimbingFinished += OnClimbingFinished;
-            _presenter.Crawling += OnCrawling;
-            _presenter.CrawlingFinished += OnCrawlingFinished;
-            _presenter.Falling += OnFalling;
+            base.PresenterAttached();
+            
             _presenter.BlockRemoving += OnBlockRemoving;
             _presenter.BlockRemoved += OnBlockRemoved;
-
-            _presenter.CharacterCreated();
         }
 
-        protected void OnDestroy()
+        protected override void OnDestroy()
         {
-            _presenter.Moving -= OnMoving;
-            _presenter.Climbing -= OnClimbing;
-            _presenter.ClimbingFinished -= OnClimbingFinished;
-            _presenter.Crawling -= OnCrawling;
-            _presenter.CrawlingFinished -= OnCrawlingFinished;
-            _presenter.Falling -= OnFalling;
+            base.OnDestroy();
+            
             _presenter.BlockRemoving -= OnBlockRemoving;
             _presenter.BlockRemoved -= OnBlockRemoved;
         }
@@ -70,67 +54,6 @@ namespace Loderunner.Gameplay
             _presenter.UpdateCharacterMoveData(new MovingData(horizontalMove, verticalMove, transform.position));
             _presenter.UpdatePlayerRemovingBlock(removeBlockType, transform.position);
             _presenter.UpdateCharacterState();
-        }
-
-        private void OnMoving(Vector2 newPosition, float moveSpeed)
-        {
-            var delta = newPosition.x - transform.position.x;
-
-            _animationHandler.ApplyAnimation(new MoveAnimationAction(moveSpeed));
-
-            _rigidbody.MovePosition(newPosition);
-
-            SetLookDirection(delta);
-        }
-
-        private void OnClimbing(Vector2 newPosition, float moveSpeed)
-        {
-            _animationHandler.ApplyAnimation(new ClimbAnimationAction(moveSpeed));
-
-            _rigidbody.MovePosition(newPosition);
-        }
-
-        private void SetLookDirection(float moveValue)
-        {
-            switch (moveValue)
-            {
-                case 0:
-                    return;
-                case > 0:
-                    transform.localRotation = Quaternion.Euler(0, 180, 0);
-                    break;
-                default:
-                    transform.localRotation = Quaternion.identity;
-                    break;
-            }
-        }
-
-        private void OnClimbingFinished()
-        {
-            _animationHandler.ApplyAnimation(new ClimbFinishedAnimationAction());
-        }
-
-        private void OnFalling(Vector2 newPosition)
-        {
-            _animationHandler.ApplyAnimation(new FallingAnimationAction());
-
-            _rigidbody.MovePosition(newPosition);
-        }
-
-        private void OnCrawling(Vector2 newPosition, float moveSpeed)
-        {
-            var delta = newPosition.x - transform.position.x;
-
-            _animationHandler.ApplyAnimation(new CrawlAnimationAction(moveSpeed));
-
-            _rigidbody.MovePosition(newPosition);
-
-            SetLookDirection(delta);
-        }
-
-        private void OnCrawlingFinished()
-        {
-            _animationHandler.ApplyAnimation(new CrawlFinishedAnimationAction());
         }
         
         private void OnBlockRemoving(Vector2 newPosition, RemoveBlockType removeBlockType)

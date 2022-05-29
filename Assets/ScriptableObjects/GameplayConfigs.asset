@@ -17,6 +17,11 @@ MonoBehaviour:
     _climbSpeed: 3
     _crawlSpeed: 3
     _fallSpeed: 3
+  _guardianConfig:
+    _walkSpeed: 3
+    _climbSpeed: 2.5
+    _crawlSpeed: 2.5
+    _fallSpeed: 3
   _gameConfig:
     _cellSize: 1
     _movementThreshold: 0.01

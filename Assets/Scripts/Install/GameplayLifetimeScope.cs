@@ -27,6 +27,7 @@ namespace Loderunner.Install
         private void RegisterScriptableObjects(IContainerBuilder builder)
         {
             builder.RegisterInstance(_configsHolder.PlayerConfig).AsSelf();
+            builder.RegisterInstance(_configsHolder.GuardianConfig).AsSelf();
             builder.RegisterInstance(_configsHolder.GameConfig).AsSelf();
             builder.RegisterInstance(_configsHolder.WallBlockRemoveConfig).AsSelf();
             builder.RegisterInstance(_levelsConfigsHolder.Levels).As<IReadOnlyList<LevelConfig>>();
@@ -45,9 +46,14 @@ namespace Loderunner.Install
             builder.Register<PlayerStateData>(Lifetime.Scoped).AsSelf();
             builder.Register<PlayerStateContext>(Lifetime.Scoped).AsSelf();
             
+            builder.Register<StateData>(Lifetime.Transient).AsSelf();
+            builder.Register<GuardianStateContext>(Lifetime.Transient).AsSelf();
+            
             builder.Register<LevelFinishedObserver>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<CharacterFallObserver>(Lifetime.Transient).AsImplementedInterfaces();
             builder.Register<WallBlockRemover>(Lifetime.Transient).AsImplementedInterfaces();
+            builder.Register<GuardiansCommanderFacade>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<AStarPathFinder>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.Register<PrepareScenePresenter>(Lifetime.Transient);
             builder.Register<LevelPresenter>(Lifetime.Transient);

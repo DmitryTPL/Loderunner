@@ -5,11 +5,13 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
+    [ExecuteInEditMode]
     public class LevelMapCreator : MonoBehaviour
     {
         public const int CanMove = 1;
         public const int Empty = 0;
         public const int Wall = -1;
+        public const int Crossbar = 2;
         
         [SerializeField, Range(1, 100)] private int _levelLength;
         [SerializeField, Range(1, 100)] private int _levelHeight;
@@ -106,7 +108,7 @@ namespace Loderunner.Gameplay
                         break;
                     }
 
-                    map[nextPositionY, cellPositionX] = CanMove;
+                    map[nextPositionY, cellPositionX] = Crossbar;
                 }
             }
         }

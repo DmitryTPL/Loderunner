@@ -5,14 +5,17 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
+    [ExecuteInEditMode]
     public class LevelMapGridPainter : MonoBehaviour
     {
         [SerializeField] private float _zoomCompensation = 1;
         [SerializeField] private Vector2 _offset = new(1, 1);
 
+        [SerializeField, HideInInspector]
         private Matrix<int> _map;
-
+        [SerializeField, HideInInspector]
         private int _levelLength;
+        [SerializeField, HideInInspector]
         private int _levelHeight;
 
         public void SetData(Matrix<int> map, int levelHeight, int levelLength)

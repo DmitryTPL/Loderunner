@@ -6,6 +6,7 @@ namespace Loderunner.Gameplay
     {
         public override void Execute(Animator animator)
         {
+            animator.SetBool(CharacterAnimationParameter.IsRemovingBlock, false);
             ResetAll(animator);
         }
     }

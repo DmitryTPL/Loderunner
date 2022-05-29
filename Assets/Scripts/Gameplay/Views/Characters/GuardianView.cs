@@ -1,14 +1,16 @@
-﻿using Loderunner.Service;
-using UnityEngine;
-
+﻿
 namespace Loderunner.Gameplay
 {
-    public class GuardianView : View<GuardianPresenter>, ICharacterInfo
+    public class GuardianView : CharacterView<GuardianPresenter>
     {
-        [SerializeField] private AnimationHandler _animationHandler;
-        
-        public CharacterType CharacterType => CharacterType.Guardian;
-        public int CharacterId { get; set; }
-        public Vector2 Position => transform.position;
+        public override CharacterType CharacterType => CharacterType.Guardian;
+
+        private void FixedUpdate()
+        {
+            var (horizontalDirection, verticalDirection) = _presenter.GetDirection();
+            
+            _presenter.UpdateCharacterMoveData(new MovingData(horizontalDirection, verticalDirection, Position));
+            _presenter.UpdateCharacterState();
+        }
     }
 }

@@ -7,10 +7,12 @@ namespace Loderunner.Gameplay
     public class ConfigsHolder : ScriptableObject
     {
         [SerializeField] private PlayerConfig _playerConfig;
+        [SerializeField] private GuardianConfig _guardianConfig;
         [SerializeField] private GameConfig _gameConfig;
         [SerializeField] private WallBlockRemoveConfig _wallBlockRemoveConfig;
 
         public PlayerConfig PlayerConfig => _playerConfig;
+        public GuardianConfig GuardianConfig => _guardianConfig;
         public GameConfig GameConfig => _gameConfig;
         public WallBlockRemoveConfig WallBlockRemoveConfig => _wallBlockRemoveConfig;
     }
@@ -25,6 +27,20 @@ namespace Loderunner.Gameplay
 
     [Serializable]
     public class PlayerConfig : ICharacterConfig
+    {
+        [SerializeField] private float _walkSpeed;
+        [SerializeField] private float _climbSpeed;
+        [SerializeField] private float _crawlSpeed;
+        [SerializeField] private float _fallSpeed;
+
+        public float WalkSpeed => _walkSpeed;
+        public float ClimbSpeed => _climbSpeed;
+        public float CrawlSpeed => _crawlSpeed;
+        public float FallSpeed => _fallSpeed;
+    }
+
+    [Serializable]
+    public class GuardianConfig : ICharacterConfig
     {
         [SerializeField] private float _walkSpeed;
         [SerializeField] private float _climbSpeed;

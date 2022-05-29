@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Loderunner.Service;
 using UnityEngine;
 
@@ -20,78 +22,82 @@ namespace Loderunner.Gameplay
             };
         }
 
-        public Stack<Vector2Int> GetPath(Matrix<int> map, Vector2Int startPoint, Vector2Int goal)
+        public async UniTask<PathResult> GetPath(Matrix<int> map, Vector2Int startPoint, Vector2Int goal)
         {
-            var frontier = new PriorityQueue<Vector2Int>();
-
-            frontier.Enqueue(startPoint, 0);
-
-            var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
-
-            var pathCost = new Dictionary<Vector2, float>
+            return await Task.Run(() =>
             {
-                [startPoint] = 0
-            };
+                var frontier = new PriorityQueue<Vector2Int>();
 
-            while (frontier.Count > 0)
-            {
-                var current = frontier.Dequeue();
+                frontier.Enqueue(startPoint, 0);
 
-                if (current == goal)
+                var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
+
+                var pathCost = new Dictionary<Vector2, float>
                 {
-                    break;
-                }
+                    [startPoint] = 0
+                };
 
-                var neighbours = GetNeighbours(map, current);
-
-                foreach (var neighbour in neighbours)
+                while (frontier.Count > 0)
                 {
-                    if (map[neighbour.y, neighbour.x] <= 0)
+                    var current = frontier.Dequeue();
+
+                    if (current == goal)
                     {
-                        continue;
+                        break;
                     }
 
-                    var newPathCost = pathCost[current] + map[neighbour.y, neighbour.x];
+                    var neighbours = GetNeighbours(map, current);
 
-                    if (!pathCost.ContainsKey(neighbour) || newPathCost < pathCost[neighbour])
+                    foreach (var neighbour in neighbours)
                     {
-                        pathCost[neighbour] = newPathCost;
+                        if (map[neighbour.y, neighbour.x] <= 0 || 
+                            map[current.y, current.x] < map[neighbour.y, neighbour.x] && current - neighbour == _directions[1])
+                        {
+                            continue;
+                        }
 
-                        var priority = newPathCost + GetHeuristicsPathDistance(neighbour, goal);
+                        var newPathCost = pathCost[current] + 1;
 
-                        frontier.Enqueue(neighbour, priority);
+                        if (!pathCost.ContainsKey(neighbour) || newPathCost < pathCost[neighbour])
+                        {
+                            pathCost[neighbour] = newPathCost;
 
-                        cameFrom[neighbour] = current;
+                            var priority = newPathCost + GetHeuristicsPathDistance(neighbour, goal);
+
+                            frontier.Enqueue(neighbour, priority);
+
+                            cameFrom[neighbour] = current;
+                        }
                     }
                 }
-            }
 
-            var path = new Stack<Vector2Int>();
+                var path = new Stack<Vector2Int>();
 
-            if (!cameFrom.ContainsKey(goal))
-            {
-                path.Push(startPoint);
-                
-                return path;
-            }
-
-            path.Push(goal);
-
-            var pathPoint = goal;
-
-            while (true)
-            {
-                pathPoint = cameFrom[pathPoint];
-
-                if (pathPoint == startPoint)
+                if (!cameFrom.ContainsKey(goal))
                 {
-                    break;
+                    path.Push(startPoint);
+
+                    return new PathResult(SearchPathResult.Failed);
                 }
 
-                path.Push(pathPoint);
-            }
+                path.Push(goal);
 
-            return path;
+                var pathPoint = goal;
+
+                while (true)
+                {
+                    pathPoint = cameFrom[pathPoint];
+
+                    if (pathPoint == startPoint)
+                    {
+                        break;
+                    }
+
+                    path.Push(pathPoint);
+                }
+
+                return new PathResult(path);
+            });
         }
 
         private float GetHeuristicsPathDistance(Vector2Int current, Vector2Int goal)

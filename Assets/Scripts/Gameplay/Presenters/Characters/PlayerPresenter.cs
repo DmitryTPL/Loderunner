@@ -9,8 +9,6 @@ namespace Loderunner.Gameplay
 {
     public sealed class PlayerPresenter : CharacterPresenter
     {
-        public const int PlayerId = -1;
-        
         private readonly IWallBlockRemover _wallBlockRemover;
         private readonly GameConfig _gameConfig;
         private readonly PlayerStateData _playerStateData;
@@ -24,7 +22,7 @@ namespace Loderunner.Gameplay
         public PlayerPresenter(PlayerStateContext playerStateContext, IAsyncEnumerableReceiver receiver, IAsyncEnumerablePublisher publisher,
             ICharacterFallObserver characterFallObserver, IWallBlockRemover wallBlockRemover, GameConfig gameConfig,
             ILevelFinishedObserver levelFinishedObserver)
-            : base(PlayerId, playerStateContext, receiver, publisher, characterFallObserver, playerStateContext.StateData)
+            : base(playerStateContext, receiver, publisher, characterFallObserver, playerStateContext.StateData)
         {
             _wallBlockRemover = wallBlockRemover;
             _gameConfig = gameConfig;

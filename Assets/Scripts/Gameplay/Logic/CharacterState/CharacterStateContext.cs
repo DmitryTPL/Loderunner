@@ -8,13 +8,21 @@ namespace Loderunner.Gameplay
         private readonly GameConfig _gameConfig;
         private readonly ICharacterConfig _characterConfig;
 
-        protected Dictionary<int, IExecuteState> States { get; set; }
+        protected Dictionary<int, IExecuteState> States { get; }
 
         public TData StateData { get; }
         
-        protected CharacterStateContext(TData stateData)
+        protected CharacterStateContext(GameConfig gameConfig, ICharacterConfig characterConfig, TData stateData)
         {
             StateData = stateData;
+            
+            States = new()
+            {
+                { (int)CharacterState.Moving, new MoveState(gameConfig, characterConfig, stateData) },
+                { (int)CharacterState.CrossbarCrawling, new CrossbarCrawlingState(gameConfig, characterConfig, stateData) },
+                { (int)CharacterState.LadderClimbing, new LadderClimbingState(gameConfig, characterConfig, stateData) },
+                { (int)CharacterState.Falling, new FallingState(gameConfig, characterConfig, stateData) }
+            };
         }
 
         public UpdatedStateData GetStateData()
@@ -25,6 +33,12 @@ namespace Loderunner.Gameplay
 
             while(result.MoveNext)
             {
+                if (!States.ContainsKey((int)state))
+                {
+                    state++;
+                    continue;
+                }
+                
                 previousState = state;
                 
                 result = States[(int)state++].Execute();
