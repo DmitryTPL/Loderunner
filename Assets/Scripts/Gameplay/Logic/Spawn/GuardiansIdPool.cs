@@ -15,6 +15,8 @@ namespace Loderunner.Gameplay
         private int _maxId;
         private readonly Stack<int> _identifiers = new();
 
+        public int GuardiansCount => _maxId - _identifiers.Count;
+
         public GuardiansIdPool(IAsyncEnumerableReceiver receiver)
         {
             receiver.Receive<LevelCreatedMessage>().Subscribe(OnLevelCreated).AddTo(DisposeCancellationToken);

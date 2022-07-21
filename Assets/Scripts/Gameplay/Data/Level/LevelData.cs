@@ -8,5 +8,6 @@ namespace Loderunner.Gameplay
         public Bounds CameraBounds { get; set; }
         public int LevelNumber { get; set; }
         public Matrix<int> Map { get; set; }
+        public LevelConfig Config { get; set; }
     }
 }

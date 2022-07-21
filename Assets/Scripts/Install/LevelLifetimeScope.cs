@@ -20,6 +20,7 @@ namespace Loderunner.Install
         private void RegisterTypes(IContainerBuilder builder)
         {
             builder.Register<IGuardiansIdPool, GuardiansIdPool>(Lifetime.Singleton);
+            builder.Register<IGuardiansSpawnCenter, GuardiansSpawnCenter>(Lifetime.Singleton);
             
             builder.Register<GoldCreator>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<GuardianCreator>(Lifetime.Singleton).AsImplementedInterfaces().WithParameter("pool", _pool);

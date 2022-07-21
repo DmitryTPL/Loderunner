@@ -6,7 +6,7 @@ namespace Loderunner.Gameplay
     {
         private void Start()
         {
-            _presenter.CreateLevel(1);
+            _presenter.CreateLevel(0);
         }
     }
 }

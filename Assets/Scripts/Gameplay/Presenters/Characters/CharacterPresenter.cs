@@ -11,9 +11,9 @@ namespace Loderunner.Gameplay
     public abstract class CharacterPresenter : Presenter, ICharacter
     {
         private readonly ICharacterStateContext _characterStateContext;
-        private readonly ICharacterFallObserver _characterFallObserver;
         private readonly StateData _stateData;
 
+        protected readonly ICharacterFallObserver _characterFallObserver;
         protected readonly IAsyncEnumerableReceiver _receiver;
         protected readonly IAsyncEnumerablePublisher _publisher;
 
@@ -26,8 +26,9 @@ namespace Loderunner.Gameplay
 
         public int Id { get; private set; }
         public abstract CharacterType CharacterType { get; }
-        public bool CanAct { get; protected set; }
         public Vector2 Position { get; set; }
+        
+        protected bool CanAct { get; set; }
 
         protected CharacterPresenter(ICharacterStateContext characterStateContext, IAsyncEnumerableReceiver receiver,
             IAsyncEnumerablePublisher publisher, ICharacterFallObserver characterFallObserver, StateData stateData)

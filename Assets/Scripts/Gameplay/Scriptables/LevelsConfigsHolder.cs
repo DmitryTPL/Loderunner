@@ -16,9 +16,9 @@ namespace Loderunner.Gameplay
     public class LevelConfig
     {
         [SerializeField] private int _goldHeaps;
-        [SerializeField] private int _guards;
+        [SerializeField] private int _guardians;
 
         public int GoldHeaps => _goldHeaps;
-        public int Guards => _guards;
+        public int Guardians => _guardians;
     }
 }

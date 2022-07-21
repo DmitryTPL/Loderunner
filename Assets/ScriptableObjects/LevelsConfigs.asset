@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _levels:
   - _goldHeaps: 6
-    _guards: 0
+    _guardians: 0

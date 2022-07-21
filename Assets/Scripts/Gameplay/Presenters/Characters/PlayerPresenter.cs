@@ -11,6 +11,7 @@ namespace Loderunner.Gameplay
     {
         private readonly IWallBlockRemover _wallBlockRemover;
         private readonly GameConfig _gameConfig;
+        private readonly ILevelFinishedObserver _levelFinishedObserver;
         private readonly PlayerStateData _playerStateData;
         private bool _isPlayerRemovingBlock;
 
@@ -26,15 +27,21 @@ namespace Loderunner.Gameplay
         {
             _wallBlockRemover = wallBlockRemover;
             _gameConfig = gameConfig;
+            _levelFinishedObserver = levelFinishedObserver;
             _playerStateData = playerStateContext.StateData;
-            
-            wallBlockRemover.BindCharacter(Id);
-            levelFinishedObserver.BindCharacter(Id);
+        }
 
-            receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnWallBlockRemovingBegan)
+        public override void CharacterCreated(int id)
+        {
+            base.CharacterCreated(id);
+            
+            _wallBlockRemover.BindCharacter(id);
+            _levelFinishedObserver.BindCharacter(id);
+            
+            _receiver.Receive<WallBlockRemovingBeganMessage>().Where(m => m.IsCharacterMatch(id)).Subscribe(OnWallBlockRemovingBegan)
                 .AddTo(DisposeCancellationToken);
-            receiver.Receive<CharacterReachedGoldMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnPlayerReachedGold).AddTo(DisposeCancellationToken);
-            receiver.Receive<PlayerReachedLevelExitMessage>().Subscribe(OnPlayerReachedLevelExit).AddTo(DisposeCancellationToken);
+            _receiver.Receive<CharacterReachedGoldMessage>().Where(m => m.IsCharacterMatch(id)).Subscribe(OnPlayerReachedGold).AddTo(DisposeCancellationToken);
+            _receiver.Receive<PlayerReachedLevelExitMessage>().Subscribe(OnPlayerReachedLevelExit).AddTo(DisposeCancellationToken);
         }
 
         public void UpdatePlayerRemovingBlock(RemoveBlockType blockType, Vector2 playerPosition)

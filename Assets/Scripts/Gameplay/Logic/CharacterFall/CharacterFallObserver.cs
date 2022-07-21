@@ -17,7 +17,7 @@ namespace Loderunner.Gameplay
         private float _floorPoint;
         
         private readonly CancellationTokenSource _unsubscribeTokenSource = new();
-        private readonly HashSet<int> _enteredGroundColliders = new();
+        private readonly HashSet<Guid> _enteredGroundColliders = new();
 
         private bool IsFalling => !IsGrounded && !IsOnLadder && !IsOnCrossbar;
         
@@ -35,7 +35,9 @@ namespace Loderunner.Gameplay
             receiver.Receive<ExitLadderMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<EnterCrossbarMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnEnterCrossbar).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<ExitCrossbarMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnExitCrossbar).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnCharacterNeedToFallInRemovedBlockMessage).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnCharacterNeedToFallInRemovedBlock).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<BorderReachedMessage>().Where(m => m.IsCharacterMatch(_characterId) && m.Border == BorderType.Bottom).Subscribe(OnBottomBorderReached).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<MovedAwayFromBorderMessage>().Where(m => m.IsCharacterMatch(_characterId) && m.Border == BorderType.Bottom).Subscribe(OnMoveAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Dispose()
@@ -117,12 +119,27 @@ namespace Loderunner.Gameplay
 
             if (!IsGrounded)
             {
-                _floorPoint = message.FloorPoint;
+                _floorPoint = message.TopPoint;
             }
 
             _enteredGroundColliders.Add(message.FloorId);
         }
 
+        private void OnBottomBorderReached(BorderReachedMessage message)
+        {
+            if (!IsGrounded)
+            {
+                _floorPoint = message.TopPoint;
+            }
+            
+            _enteredGroundColliders.Add(message.BorderId);
+        }
+
+        private void OnMoveAwayFromBorder(MovedAwayFromBorderMessage message)
+        {
+            _enteredGroundColliders.Remove(message.BorderId);
+        }
+        
         private void OnEnterLadder(EnterLadderMessage obj)
         {
             IsOnLadder = true;
@@ -166,7 +183,7 @@ namespace Loderunner.Gameplay
             IsOnCrossbar = false;
         }
 
-        private void OnCharacterNeedToFallInRemovedBlockMessage(CharacterNeedToFallInRemovedBlockMessage message)
+        private void OnCharacterNeedToFallInRemovedBlock(CharacterNeedToFallInRemovedBlockMessage message)
         {
             _fallPoint = message.FallPoint;
             _enteredGroundColliders.Clear();

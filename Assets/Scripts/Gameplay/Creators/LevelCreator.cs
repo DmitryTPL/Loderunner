@@ -12,11 +12,11 @@ namespace Loderunner.Gameplay
             _levelCreator = levelCreator;
         }
 
-        public GameObject CreateLevel(int level)
+        public GameObject CreateLevel(int level, LevelConfig levelConfig)
         {
             var levelObject = _levelCreator(level);
 
-            levelObject.SetLevelNumber(level);
+            levelObject.SetLevelData(level, levelConfig);
             
             return levelObject.gameObject;
         }

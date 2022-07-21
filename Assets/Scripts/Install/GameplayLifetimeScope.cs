@@ -69,7 +69,7 @@ namespace Loderunner.Install
                 parent => container.Instantiate(_playerViewPrefab, parent), Lifetime.Singleton);
 
             builder.RegisterFactory<int, LevelView>(container =>
-                levelNumber => container.Instantiate(_levelPrefabs[levelNumber - 1], _levelPosition), Lifetime.Singleton);
+                levelIndex => container.Instantiate(_levelPrefabs[levelIndex], _levelPosition), Lifetime.Singleton);
         }
     }
 }

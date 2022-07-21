@@ -6,17 +6,7 @@ namespace Loderunner.Gameplay
     {
         protected override void PresenterAttached()
         {
-            _presenter.NeedToSpawnGuardian += OnNeedToSpawnGuardian;
-        }
-
-        private void OnDestroy()
-        {
-            _presenter.NeedToSpawnGuardian -= OnNeedToSpawnGuardian;
-        }
-
-        private void OnNeedToSpawnGuardian()
-        {
-            _presenter.Spawn(transform);
+            _presenter.SetSpawnPoint(transform);
         }
     }
 }

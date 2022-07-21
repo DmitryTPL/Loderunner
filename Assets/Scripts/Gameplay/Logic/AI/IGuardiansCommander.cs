@@ -7,6 +7,5 @@ namespace Loderunner.Gameplay
     {
         void Register(int id);
         UniTask<PathResult> GetPath(int id, Vector2Int mapPosition);
-        Vector2Int FindPositionOnMap(Vector2 position);
     }
 }

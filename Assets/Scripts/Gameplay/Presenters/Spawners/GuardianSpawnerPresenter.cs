@@ -1,35 +1,40 @@
-﻿using System;
-using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Linq;
-using Loderunner.Service;
-using UniTaskPubSub.AsyncEnumerable;
+﻿using Loderunner.Service;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public class GuardianSpawnerPresenter : Presenter
+    public class GuardianSpawnerPresenter : Presenter, IGuardianSpawner
     {
-        public event Action NeedToSpawnGuardian;
-
+        private Transform _transform;
         private readonly IGuardianCreator _guardianCreator;
-        private readonly IGuardiansIdPool _guardiansIdPool;
+        
+        public bool IsSpawning { get; private set; }
 
-        public GuardianSpawnerPresenter(IAsyncEnumerableReceiver receiver, IGuardianCreator guardianCreator, IGuardiansIdPool guardiansIdPool)
+        public GuardianSpawnerPresenter(IGuardianCreator guardianCreator, IGuardiansSpawnCenter spawnCenter)
         {
             _guardianCreator = guardianCreator;
-            _guardiansIdPool = guardiansIdPool;
+            spawnCenter.Register(this);
+        }
+
+        public void SetSpawnPoint(Transform transform)
+        {
+            _transform = transform;
+        }
+
+        public bool TrySpawn(int id)
+        {
+            if (IsSpawning)
+            {
+                return false;
+            }
+
+            IsSpawning = true;
             
-            receiver.Receive<LevelCreatedMessage>().Subscribe(OnLevelCreated).AddTo(DisposeCancellationToken);
-        }
+            _guardianCreator.CreateGuardian(_transform, id);
+            
+            IsSpawning = false;
 
-        public void Spawn(Transform transform)
-        {
-            _guardianCreator.CreateGuardian(transform, _guardiansIdPool.GetId());
-        }
-
-        private void OnLevelCreated(LevelCreatedMessage message)
-        {
-            NeedToSpawnGuardian?.Invoke();
+            return true;
         }
     }
 }

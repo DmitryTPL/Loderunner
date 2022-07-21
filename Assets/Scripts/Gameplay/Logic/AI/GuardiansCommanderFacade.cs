@@ -46,7 +46,7 @@ namespace Loderunner.Gameplay
 
         private void OnPlayerMoved(PlayerMovedMessage message)
         {
-            var newPlayerPosition = FindPositionOnMap(message.Position);
+            var newPlayerPosition = message.Position.ToVector2Int();
 
             if (newPlayerPosition != _playerPosition)
             {
@@ -54,11 +54,6 @@ namespace Loderunner.Gameplay
 
                 _publisher.Publish(new UpdateGuardiansPathMessage());
             }
-        }
-
-        public Vector2Int FindPositionOnMap(Vector2 position)
-        {
-            return new Vector2Int((int)Math.Floor(position.x), (int)Math.Floor(position.y));
         }
     }
 }

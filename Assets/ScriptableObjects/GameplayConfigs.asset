@@ -22,6 +22,7 @@ MonoBehaviour:
     _climbSpeed: 2.5
     _crawlSpeed: 2.5
     _fallSpeed: 3
+    _stuckInRemovedBlockTimeout: 2
   _gameConfig:
     _cellSize: 1
     _movementThreshold: 0.01
