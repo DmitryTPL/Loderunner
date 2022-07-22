@@ -1,20 +1,25 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
-using Loderunner.Service;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public class WallBlockView : View<WallBlockPresenter>
+    public class RemovableWallBlockView : WallBlock<RemovableWallBlockPresenter>
     {
         [SerializeField] private AnimationHandler _animationHandler;
         [SerializeField] private RemovedWallView _removedWallView;
 
-        private void Awake()
+        protected override void PresenterAttached()
         {
-            _presenter.SetPosition(transform.position);
-            _presenter.SetRemovedWallPresenter(_removedWallView.Presenter);
+            base.PresenterAttached();
+            
             _presenter.CurrentWallBlockLifeState.ForEachAsync(OnWallBlockRemoveStateChanged, this.GetCancellationTokenOnDestroy()).Forget();
+        }
+
+        private void Start()
+        {
+            _presenter.SetRemovedWallPresenter(_removedWallView.Presenter);
         }
 
         private void OnWallBlockRemoveStateChanged(WallBlockLifeState state)

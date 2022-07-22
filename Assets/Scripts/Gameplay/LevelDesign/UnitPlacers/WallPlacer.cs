@@ -10,8 +10,8 @@ namespace Loderunner.Gameplay
         [Header("Blocks")] [SerializeField, Range(0, 100)]
         private int _blocksCount;
 
-        [SerializeField] private WallBlockView _prefab;
-        [SerializeField] private List<WallBlockView> _blocks = new();
+        [SerializeField] private RemovableWallBlockView _prefab;
+        [SerializeField] private List<RemovableWallBlockView> _blocks = new();
 
         [Space, Header("Fall")] [SerializeField]
         private bool _canFallFromLeft;
@@ -112,7 +112,7 @@ namespace Loderunner.Gameplay
 
                 for (var i = blocksCount; i < _blocksCount; i++)
                 {
-                    var block = PrefabUtility.InstantiatePrefab(_prefab) as WallBlockView;
+                    var block = PrefabUtility.InstantiatePrefab(_prefab) as RemovableWallBlockView;
 
                     block.transform.position = new Vector2(transform.position.x + i * CellSize, transform.position.y);
                     block.transform.parent = transform;

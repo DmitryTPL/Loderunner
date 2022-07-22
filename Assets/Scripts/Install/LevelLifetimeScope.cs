@@ -26,8 +26,10 @@ namespace Loderunner.Install
             builder.Register<GuardianCreator>(Lifetime.Singleton).AsImplementedInterfaces().WithParameter("pool", _pool);
 
             builder.Register<LadderPresenter>(Lifetime.Transient);
-            builder.Register<WallBlockPresenter>(Lifetime.Transient);
+            builder.Register<RemovableWallBlockPresenter>(Lifetime.Transient);
             builder.Register<RemovedWallPresenter>(Lifetime.Transient);
+            builder.Register<RemovedWallGroundPresenter>(Lifetime.Transient);
+            builder.Register<PermanentWallBlockPresenter>(Lifetime.Transient);
             builder.Register<BorderPresenter>(Lifetime.Transient);
             builder.Register<SideToFallPresenter>(Lifetime.Transient);
             builder.Register<FloorPresenter>(Lifetime.Transient);

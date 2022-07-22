@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Loderunner.Service;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Loderunner.Gameplay
 {
@@ -9,12 +9,13 @@ namespace Loderunner.Gameplay
     public class FloorView : View<FloorPresenter>
     {
         [SerializeField] private Transform _fallPoint;
-        [SerializeField] private List<WallBlockView> _wallBlocks;
+        [FormerlySerializedAs("_wallBlocks")] [SerializeField] private List<RemovableWallBlockView> _removableWallBlocks;
+        [SerializeField] private List<PermanentWallBlockView> _permanentWallBlocks;
 
-        public List<WallBlockView> WallBlocks
+        public List<RemovableWallBlockView> WallBlocks
         {
-            get => _wallBlocks;
-            set => _wallBlocks = value;
+            get => _removableWallBlocks;
+            set => _removableWallBlocks = value;
         }
 
         private void Awake()
@@ -24,9 +25,14 @@ namespace Loderunner.Gameplay
 
         private void Start()
         {
-            foreach (var wallBlock in _wallBlocks)
+            foreach (var wallBlock in _removableWallBlocks)
             {
-                _presenter.AddWallBlockPresenter(wallBlock.Presenter);
+                _presenter.AddWallBlock(wallBlock.Presenter, wallBlock.transform.GetSiblingIndex());
+            }
+            
+            foreach (var wallBlock in _permanentWallBlocks)
+            {
+                _presenter.AddWallBlock(wallBlock.Presenter, wallBlock.transform.GetSiblingIndex());
             }
         }
 

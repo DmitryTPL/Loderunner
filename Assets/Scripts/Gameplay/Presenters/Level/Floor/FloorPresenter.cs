@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using Loderunner.Service;
@@ -12,7 +13,7 @@ namespace Loderunner.Gameplay
     {
         private readonly IAsyncEnumerablePublisher _publisher;
         private readonly GameConfig _gameConfig;
-        private readonly List<IRemovableWallBlock> _wallBlocks = new();
+        private readonly Dictionary<int, IWallBlockWithBorders> _wallBlocks = new();
 
         private float _leftFallPoint;
         private float _rightFallPoint;
@@ -29,9 +30,9 @@ namespace Loderunner.Gameplay
             _floorStartPosition = position;
         }
 
-        public void AddWallBlockPresenter(IRemovableWallBlock wallBlockPresenter)
+        public void AddWallBlock(IWallBlockWithBorders wallBlock, int index)
         {
-            _wallBlocks.Add(wallBlockPresenter);
+            _wallBlocks.Add(index, wallBlock);
         }
 
         public void FloorReached(ICharacterInfo character, float floorTop)
@@ -61,6 +62,8 @@ namespace Loderunner.Gameplay
                     return;
                 }
 
+                ChangeNeighboursBordersActivity(wallBlock, true);
+
                 await foreach (var state in wallBlock.TryRemove(removerId).WithCancellation(token))
                 {
                     if (token.IsCancellationRequested)
@@ -71,15 +74,36 @@ namespace Loderunner.Gameplay
                     
                     await writer.YieldAsync(state);
                 }
+                
+                ChangeNeighboursBordersActivity(wallBlock, false);
             });
+        }
+
+        private void ChangeNeighboursBordersActivity(IRemovableWallBlock removableWallBlock, bool isActive)
+        {
+            var wallBlockIndex = _wallBlocks.Where(w => w.Value == removableWallBlock).Select(w => w.Key).First();
+
+            var minIndex = _wallBlocks.Keys.Min();
+            var maxIndex = _wallBlocks.Keys.Max();
+            
+            if (wallBlockIndex >= minIndex && wallBlockIndex < maxIndex)
+            {
+                _wallBlocks[wallBlockIndex + 1].ChangeLeftBorderActivity(isActive);
+            } 
+            
+            if (wallBlockIndex > minIndex && wallBlockIndex <= maxIndex)
+            {
+                _wallBlocks[wallBlockIndex - 1].ChangeRightBorderActivity(isActive); 
+            }
         }
 
         private IRemovableWallBlock GetWallBlockToRemove(RemoveBlockType removeBlockType, Vector2 characterPosition)
         {
-            for (var i = 0; i < _wallBlocks.Count; i++)
+            foreach (var wallBlockKeyValue in _wallBlocks)
             {
-                var wallBlock = _wallBlocks[i];
-
+                var wallBlockIndex = wallBlockKeyValue.Key;
+                var wallBlock = wallBlockKeyValue.Value;
+                
                 if (!wallBlock.IsCharacterInBorders(characterPosition))
                 {
                     continue;
@@ -88,9 +112,9 @@ namespace Loderunner.Gameplay
                 switch (removeBlockType)
                 {
                     case RemoveBlockType.Left:
-                        return i == 0 ? null : _wallBlocks[i - 1];
+                        return wallBlockIndex == _wallBlocks.Keys.Min() ? null : _wallBlocks[wallBlockIndex - 1] as IRemovableWallBlock;
                     case RemoveBlockType.Right:
-                        return i == _wallBlocks.Count - 1 ? null : _wallBlocks[i + 1];
+                        return wallBlockIndex == _wallBlocks.Keys.Max() ? null : _wallBlocks[wallBlockIndex + 1] as IRemovableWallBlock;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(removeBlockType), removeBlockType, null);
                 }
@@ -103,7 +127,7 @@ namespace Loderunner.Gameplay
                     if (characterPosition.x > _floorStartPosition.x + _gameConfig.CellSize * _wallBlocks.Count &&
                         characterPosition.x < _floorStartPosition.x + _gameConfig.CellSize * (_wallBlocks.Count + 1))
                     {
-                        return _wallBlocks[^1];
+                        return _wallBlocks[_wallBlocks.Keys.Max()] as IRemovableWallBlock;
                     }
 
                     break;
@@ -111,7 +135,7 @@ namespace Loderunner.Gameplay
                     if (characterPosition.x < _floorStartPosition.x &&
                         characterPosition.x > _floorStartPosition.x - _gameConfig.CellSize)
                     {
-                        return _wallBlocks[0];
+                        return _wallBlocks[_wallBlocks.Keys.Min()] as IRemovableWallBlock;
                     }
 
                     break;
