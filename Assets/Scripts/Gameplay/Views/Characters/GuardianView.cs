@@ -1,10 +1,21 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
+using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
     public class GuardianView : CharacterView<GuardianPresenter>
     {
+        [SerializeField] private BoxCollider2D _collider;
+        
         public override CharacterType CharacterType => CharacterType.Guardian;
+
+        protected override void PresenterAttached()
+        {
+            base.PresenterAttached();
+            
+            _presenter.CurrentRemovedWallBlockState.ForEachAsync(OnRemovedWallBlockStateChanged).Forget();
+        }
 
         private void FixedUpdate()
         {
@@ -27,6 +38,15 @@ namespace Loderunner.Gameplay
                         break;
                 }
             }
+        }
+
+        private void OnRemovedWallBlockStateChanged(GuardianPresenter.RemovedWallBlockState state)
+        {
+            _collider.enabled = state switch
+            {
+                GuardianPresenter.RemovedWallBlockState.ClimbingUp => false,
+                _ => true
+            };
         }
     }
 }

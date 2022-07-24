@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using UniTaskPubSub.AsyncEnumerable;
@@ -9,9 +8,10 @@ namespace Loderunner.Gameplay
 {
     public class GuardianPresenter : CharacterPresenter
     {
-        private enum RemovedWallBlockState
+        public enum RemovedWallBlockState
         {
             None,
+            Falling,
             Stuck,
             ClampedByTheWall,
             ClimbingUp
@@ -21,13 +21,15 @@ namespace Loderunner.Gameplay
 
         private readonly IGuardiansCommander _guardiansCommander;
         private readonly GuardianConfig _guardianConfig;
+        private readonly AsyncReactiveProperty<RemovedWallBlockState> _currentRemovedWallBlockState = new(RemovedWallBlockState.None);
 
         private Stack<Vector2Int> _pathToPlayer = new();
         private Vector2Int _mapPosition = _undefinedMapPosition;
         private bool _hasGold;
-        private RemovedWallBlockState _removedWallBlockState;
+        private readonly StateData _guardianStateData;
 
         public override CharacterType CharacterType => CharacterType.Guardian;
+        public IReadOnlyAsyncReactiveProperty<RemovedWallBlockState> CurrentRemovedWallBlockState => _currentRemovedWallBlockState;
 
         public GuardianPresenter(GuardianStateContext stateContext, IAsyncEnumerableReceiver receiver, IAsyncEnumerablePublisher publisher,
             ICharacterFallObserver characterFallObserver, IGuardiansCommander guardiansCommander, GuardianConfig guardianConfig)
@@ -35,6 +37,7 @@ namespace Loderunner.Gameplay
         {
             _guardiansCommander = guardiansCommander;
             _guardianConfig = guardianConfig;
+            _guardianStateData = stateContext.StateData;
 
             receiver.Receive<UpdateGuardiansPathMessage>().Subscribe(OnUpdatePath).AddTo(DisposeCancellationToken);
             receiver.Receive<CharacterReachedGoldMessage>().Subscribe(OnGoldReached).AddTo(DisposeCancellationToken);
@@ -52,7 +55,7 @@ namespace Loderunner.Gameplay
 
         public (int HorizontalDirection, int VerticalDirection) GetDirection()
         {
-            if (_pathToPlayer.Count == 0)
+            if (_pathToPlayer.Count == 0 || _currentRemovedWallBlockState.Value is RemovedWallBlockState.Stuck or RemovedWallBlockState.ClampedByTheWall)
             {
                 return (0, 0);
             }
@@ -83,6 +86,17 @@ namespace Loderunner.Gameplay
             _publisher.Publish(new PlayerCachedMessage());
         }
 
+        protected override void FinishClimbing()
+        {
+            base.FinishClimbing();
+
+            if (_currentRemovedWallBlockState.Value == RemovedWallBlockState.ClimbingUp)
+            {
+                _guardianStateData.ClimbingData = new ClimbingData();
+                _currentRemovedWallBlockState.Value = RemovedWallBlockState.None;
+            }
+        }
+
         private bool IsPointReached(Vector2Int direction, Vector2Int goalPosition)
         {
             var shiftedPosition = Position - new Vector2(0.5f, 0);
@@ -95,6 +109,11 @@ namespace Loderunner.Gameplay
 
         private async UniTaskVoid OnUpdatePath(UpdateGuardiansPathMessage message)
         {
+            if (_currentRemovedWallBlockState.Value is RemovedWallBlockState.Stuck or RemovedWallBlockState.ClampedByTheWall)
+            {
+                return;
+            }
+
             if (_mapPosition == _undefinedMapPosition)
             {
                 _mapPosition = Position.ToVector2Int();
@@ -126,34 +145,37 @@ namespace Loderunner.Gameplay
 
         private void OnCharacterNeedToFallInRemovedBlock(CharacterNeedToFallInRemovedBlockMessage message)
         {
-            LaunchRemovedWallBlockLifetime().Forget();
+            LaunchRemovedWallBlockLifetime(message.FallPoint, message.Top).Forget();
         }
 
-        private async UniTaskVoid LaunchRemovedWallBlockLifetime()
+        private async UniTaskVoid LaunchRemovedWallBlockLifetime(float center, float climbFinishPoint)
         {
-            _removedWallBlockState = RemovedWallBlockState.Stuck;
+            _currentRemovedWallBlockState.Value = RemovedWallBlockState.Falling;
 
             await UniTask.WaitWhile(() => !_characterFallObserver.IsGrounded);
 
-            CanAct = false;
+            _currentRemovedWallBlockState.Value = RemovedWallBlockState.Stuck;
 
             await UniTask.Delay(_guardianConfig.StuckInRemovedBlockTimeout.ToMilliseconds());
 
-            if (_removedWallBlockState != RemovedWallBlockState.ClampedByTheWall)
+            if (_currentRemovedWallBlockState != RemovedWallBlockState.ClampedByTheWall)
             {
-                _removedWallBlockState = RemovedWallBlockState.ClimbingUp;
-                CanAct = true;
+                _currentRemovedWallBlockState.Value = RemovedWallBlockState.ClimbingUp;
+
+                _mapPosition = Position.ToVector2Int();
+
+                _guardianStateData.ClimbingData = new ClimbingData(0, center, climbFinishPoint);
+
+                OnUpdatePath(new UpdateGuardiansPathMessage()).Forget();
             }
         }
 
         private void OnWallBlockRestoringBegan(WallBlockRestoringBeganMessage message)
         {
-            if (_removedWallBlockState == RemovedWallBlockState.Stuck)
+            if (_currentRemovedWallBlockState == RemovedWallBlockState.Stuck &&
+                Position.ToVector2Int() == message.WallBlockPosition.ToVector2Int())
             {
-                if (_mapPosition == message.WallBlockPosition.ToVector2Int())
-                {
-                    _removedWallBlockState = RemovedWallBlockState.ClampedByTheWall;
-                }
+                _currentRemovedWallBlockState.Value = RemovedWallBlockState.ClampedByTheWall;
             }
         }
     }

@@ -12,7 +12,6 @@ namespace Loderunner.Gameplay
         private readonly AsyncReactiveProperty<bool> _isActive = new (false);
 
         private Vector2 _position;
-        private RemovedWallGroundPresenter _removedWallGroundPresenter;
 
         public IReadOnlyAsyncReactiveProperty<bool> IsActive => _isActive;
 
@@ -27,25 +26,19 @@ namespace Loderunner.Gameplay
             _position = position;
         }
 
-        public void SetRemovedWallGroundPresenter(RemovedWallGroundPresenter presenter)
-        {
-            _removedWallGroundPresenter = presenter;
-        }
-
         public void ChangeActivity(bool isActive)
         {
             _isActive.Value = isActive;
-            _removedWallGroundPresenter.ChangeActivity(isActive);
         }
 
-        public void UpdateCharacterPosition(Vector2 characterPosition, int characterId)
+        public void UpdateCharacterPosition(Vector2 characterPosition, int characterId, float top)
         {
             var center = _position.x + _gameConfig.CellSize / 2;
             var fallBoundsValue = _gameConfig.CellSize / 8;
             
             if (characterPosition.x > center - fallBoundsValue && characterPosition.x < center + fallBoundsValue)
             {
-                _publisher.Publish(new CharacterNeedToFallInRemovedBlockMessage(characterId, center));
+                _publisher.Publish(new CharacterNeedToFallInRemovedBlockMessage(characterId, center, top));
                 ChangeActivity(false);
             }
         }

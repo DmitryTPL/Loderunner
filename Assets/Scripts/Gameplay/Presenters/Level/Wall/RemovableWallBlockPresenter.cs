@@ -12,6 +12,7 @@ namespace Loderunner.Gameplay
         private readonly AsyncReactiveProperty<WallBlockLifeState> _currentWallBlockLifeState = new(WallBlockLifeState.None);
 
         private RemovedWallPresenter _removedWallPresenter;
+        private RemovedWallGroundPresenter _removedWallGroundPresenter;
 
         public IReadOnlyAsyncReactiveProperty<WallBlockLifeState> CurrentWallBlockLifeState => _currentWallBlockLifeState;
 
@@ -26,6 +27,11 @@ namespace Loderunner.Gameplay
         public void SetRemovedWallPresenter(RemovedWallPresenter removedWallPresenter)
         {
             _removedWallPresenter = removedWallPresenter;
+        }
+
+        public void SetRemovedWallGroundPresenter(RemovedWallGroundPresenter presenter)
+        {
+            _removedWallGroundPresenter = presenter;
         }
 
         public IUniTaskAsyncEnumerable<WallBlockLifeState> TryRemove(int removerId)
@@ -60,6 +66,7 @@ namespace Loderunner.Gameplay
             await UniTask.Delay(_wallBlockRemoveConfig.RemoveTime.ToMilliseconds(), cancellationToken: cancellationToken);
 
             _removedWallPresenter.ChangeActivity(true);
+            _removedWallGroundPresenter.ChangeActivity(true);
 
             return WallBlockLifeState.Removed;
         }
@@ -73,11 +80,12 @@ namespace Loderunner.Gameplay
 
         private async UniTask<WallBlockLifeState> WaitForBlockRestored(CancellationToken cancellationToken)
         {
-            _publisher.Publish(new WallBlockRestoringBeganMessage(_position));
-
-            await UniTask.Delay(_wallBlockRemoveConfig.RestoreTime.ToMilliseconds(), cancellationToken: cancellationToken);
-
             _removedWallPresenter.ChangeActivity(false);
+            _removedWallGroundPresenter.ChangeActivity(false);
+
+            _publisher.Publish(new WallBlockRestoringBeganMessage(_position));
+            
+            await UniTask.Delay(_wallBlockRemoveConfig.RestoreTime.ToMilliseconds(), cancellationToken: cancellationToken);
 
             return WallBlockLifeState.Restored;
         }

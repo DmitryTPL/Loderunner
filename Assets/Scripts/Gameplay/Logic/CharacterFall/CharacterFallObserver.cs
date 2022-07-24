@@ -29,7 +29,7 @@ namespace Loderunner.Gameplay
         {
             receiver.Receive<ReachedSideToFallMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnReachedSideToFall).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<MovedAwayFromSideToFallMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnMoveAwayFromSideToFall).AddTo(_unsubscribeTokenSource.Token);
-            receiver.Receive<GotOffTheFloorMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(GotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<GotOffTheFloorMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnGotOffTheFloor).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<FloorReachedMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnFloorReached).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<EnterLadderMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnEnterLadder).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<ExitLadderMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnExitLadder).AddTo(_unsubscribeTokenSource.Token);
@@ -38,6 +38,8 @@ namespace Loderunner.Gameplay
             receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnCharacterNeedToFallInRemovedBlock).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<BorderReachedMessage>().Where(m => m.IsCharacterMatch(_characterId) && m.Border == BorderType.Bottom).Subscribe(OnBottomBorderReached).AddTo(_unsubscribeTokenSource.Token);
             receiver.Receive<MovedAwayFromBorderMessage>().Where(m => m.IsCharacterMatch(_characterId) && m.Border == BorderType.Bottom).Subscribe(OnMoveAwayFromBorder).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<RemovedWallGuardianGroundReachedMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnRemovedWallGuardianGroundReached).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<GotOffTheRemovedWallGuardianGroundMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnGotOffTheRemovedWallGuardianGround).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Dispose()
@@ -103,7 +105,7 @@ namespace Loderunner.Gameplay
             }
         }
 
-        private void GotOffTheFloor(GotOffTheFloorMessage message)
+        private void OnGotOffTheFloor(GotOffTheFloorMessage message)
         {
             _enteredGroundColliders.Remove(message.FloorId);
 
@@ -138,6 +140,21 @@ namespace Loderunner.Gameplay
         private void OnMoveAwayFromBorder(MovedAwayFromBorderMessage message)
         {
             _enteredGroundColliders.Remove(message.BorderId);
+        }
+
+        private void OnRemovedWallGuardianGroundReached(RemovedWallGuardianGroundReachedMessage message)
+        {
+            if (!IsGrounded)
+            {
+                _floorPoint = message.TopPoint;
+            }
+            
+            _enteredGroundColliders.Add(message.Guid);
+        }
+
+        private void OnGotOffTheRemovedWallGuardianGround(GotOffTheRemovedWallGuardianGroundMessage message)
+        {
+            _enteredGroundColliders.Remove(message.Guid);
         }
         
         private void OnEnterLadder(EnterLadderMessage obj)

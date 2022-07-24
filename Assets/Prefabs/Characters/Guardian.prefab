@@ -50,6 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animationHandler: {fileID: 8730058439633602572}
+  _collider: {fileID: 3834038494227942517}
 --- !u!114 &8730058439633602572
 MonoBehaviour:
   m_ObjectHideFlags: 0

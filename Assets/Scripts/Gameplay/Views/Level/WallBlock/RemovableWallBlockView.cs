@@ -9,6 +9,7 @@ namespace Loderunner.Gameplay
     {
         [SerializeField] private AnimationHandler _animationHandler;
         [SerializeField] private RemovedWallView _removedWallView;
+        [SerializeField] private RemovedWallGroundView _removedWallGroundView;
 
         protected override void PresenterAttached()
         {
@@ -20,6 +21,7 @@ namespace Loderunner.Gameplay
         private void Start()
         {
             _presenter.SetRemovedWallPresenter(_removedWallView.Presenter);
+            _presenter.SetRemovedWallGroundPresenter(_removedWallGroundView.Presenter);
         }
 
         private void OnWallBlockRemoveStateChanged(WallBlockLifeState state)

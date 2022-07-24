@@ -7,7 +7,7 @@ namespace Loderunner.Gameplay
     {
         [SerializeField] private Transform _bottom;
         [SerializeField] private Transform _top;
-
+        
         private void OnTriggerEnter2D(Collider2D otherCollider)
         {
             var character = otherCollider.TryGetCharacter();

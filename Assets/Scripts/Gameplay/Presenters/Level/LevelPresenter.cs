@@ -1,4 +1,6 @@
-﻿using Loderunner.Service;
+﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
+using Loderunner.Service;
 using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
 
@@ -9,10 +11,13 @@ namespace Loderunner.Gameplay
         private readonly LevelData _levelData;
         private readonly IAsyncEnumerablePublisher _publisher;
 
-        public LevelPresenter(LevelData levelData, IAsyncEnumerablePublisher publisher)
+        public LevelPresenter(LevelData levelData, IAsyncEnumerablePublisher publisher, IAsyncEnumerableReceiver receiver)
         {
             _levelData = levelData;
             _publisher = publisher;
+            
+            receiver.Receive<WallBlockRemovingBeganMessage>().Subscribe(OnWallBlockRemovingBegan).AddTo(DisposeCancellationToken);
+            receiver.Receive<WallBlockRestoringBeganMessage>().Subscribe(OnWallBlockRestoringBegan).AddTo(DisposeCancellationToken);
         }
 
         public void SetCameraBounds(Bounds bounds)
@@ -26,6 +31,20 @@ namespace Loderunner.Gameplay
             _levelData.Map = map;
             _levelData.Config = levelConfig;
             _publisher.Publish(new LevelCreatedMessage(levelNumber));
+        }
+
+        private void OnWallBlockRemovingBegan(WallBlockRemovingBeganMessage message)
+        {
+            var mapPosition = message.WallBlockPosition.ToVector2Int();
+
+            _levelData.Map[mapPosition.y, mapPosition.x] = 1;
+        }
+
+        private void OnWallBlockRestoringBegan(WallBlockRestoringBeganMessage message)
+        {
+            var mapPosition = message.WallBlockPosition.ToVector2Int();
+
+            _levelData.Map[mapPosition.y, mapPosition.x] = -1;
         }
     }
 }
