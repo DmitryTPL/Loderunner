@@ -8,10 +8,12 @@ namespace Loderunner.Gameplay
         private readonly struct InstantiateData : IInstantiateData
         {
             public Transform Parent { get; }
+            public Vector3 LocalPosition { get; }
 
-            public InstantiateData(Transform parent)
+            public InstantiateData(Transform parent, Vector3 localPosition)
             {
                 Parent = parent;
+                LocalPosition = localPosition;
             }
         }
 
@@ -31,7 +33,7 @@ namespace Loderunner.Gameplay
 
         public GameObject CreateGuardian(Transform spawner, int id)
         {
-            var guardian = Pop(new InstantiateData(spawner));
+            var guardian = Pop(new InstantiateData(spawner, Vector3.zero));
 
             guardian.CharacterId = id;
             

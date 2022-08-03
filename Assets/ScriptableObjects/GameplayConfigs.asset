@@ -23,11 +23,12 @@ MonoBehaviour:
     _crawlSpeed: 2.5
     _fallSpeed: 3
     _stuckInRemovedBlockTimeout: 2
+    _respawnTimeout: 1
   _gameConfig:
     _cellSize: 1
     _movementThreshold: 0.01
     _smoothPlayerCameraMovementRatio: 0.5
   _wallBlockRemoveConfig:
     _removeTime: 0.5
-    _removedStateTime: 3
+    _removedStateTime: 4
     _restoreTime: 0.5

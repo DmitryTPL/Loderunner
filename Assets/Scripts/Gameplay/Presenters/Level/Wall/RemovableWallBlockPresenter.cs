@@ -80,12 +80,14 @@ namespace Loderunner.Gameplay
 
         private async UniTask<WallBlockLifeState> WaitForBlockRestored(CancellationToken cancellationToken)
         {
-            _removedWallPresenter.ChangeActivity(false);
-            _removedWallGroundPresenter.ChangeActivity(false);
-
             _publisher.Publish(new WallBlockRestoringBeganMessage(_position));
             
             await UniTask.Delay(_wallBlockRemoveConfig.RestoreTime.ToMilliseconds(), cancellationToken: cancellationToken);
+            
+            _publisher.Publish(new WallBlockRestoredMessage(_position));
+            
+            _removedWallPresenter.ChangeActivity(false);
+            _removedWallGroundPresenter.ChangeActivity(false);
 
             return WallBlockLifeState.Restored;
         }

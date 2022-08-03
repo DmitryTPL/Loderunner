@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using UniTaskPubSub.AsyncEnumerable;
@@ -28,6 +29,8 @@ namespace Loderunner.Gameplay
         private bool _hasGold;
         private readonly StateData _guardianStateData;
 
+        public event Action Respawn;
+
         public override CharacterType CharacterType => CharacterType.Guardian;
         public IReadOnlyAsyncReactiveProperty<RemovedWallBlockState> CurrentRemovedWallBlockState => _currentRemovedWallBlockState;
 
@@ -44,6 +47,8 @@ namespace Loderunner.Gameplay
             receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnCharacterNeedToFallInRemovedBlock)
                 .AddTo(DisposeCancellationToken);
             receiver.Receive<WallBlockRestoringBeganMessage>().Subscribe(OnWallBlockRestoringBegan).AddTo(DisposeCancellationToken);
+            receiver.Receive<WallBlockRestoredMessage>().Subscribe(OnWallBlockRestored).AddTo(DisposeCancellationToken);
+            receiver.Receive<GuardianRespawnedMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnRespawned).AddTo(DisposeCancellationToken);
         }
 
         public override void CharacterCreated(int id)
@@ -55,7 +60,8 @@ namespace Loderunner.Gameplay
 
         public (int HorizontalDirection, int VerticalDirection) GetDirection()
         {
-            if (_pathToPlayer.Count == 0 || _currentRemovedWallBlockState.Value is RemovedWallBlockState.Stuck or RemovedWallBlockState.ClampedByTheWall)
+            if (_pathToPlayer.Count == 0 || 
+                _currentRemovedWallBlockState.Value is RemovedWallBlockState.Stuck or RemovedWallBlockState.ClampedByTheWall)
             {
                 return (0, 0);
             }
@@ -107,7 +113,12 @@ namespace Loderunner.Gameplay
             return xCoordinateReached && yCoordinateReached;
         }
 
-        private async UniTaskVoid OnUpdatePath(UpdateGuardiansPathMessage message)
+        private void OnUpdatePath(UpdateGuardiansPathMessage message)
+        {
+            UpdatePath().Forget();
+        }
+
+        private async UniTaskVoid UpdatePath()
         {
             if (_currentRemovedWallBlockState.Value is RemovedWallBlockState.Stuck or RemovedWallBlockState.ClampedByTheWall)
             {
@@ -152,11 +163,18 @@ namespace Loderunner.Gameplay
         {
             _currentRemovedWallBlockState.Value = RemovedWallBlockState.Falling;
 
+            DropGold();
+            
             await UniTask.WaitWhile(() => !_characterFallObserver.IsGrounded);
 
             _currentRemovedWallBlockState.Value = RemovedWallBlockState.Stuck;
 
             await UniTask.Delay(_guardianConfig.StuckInRemovedBlockTimeout.ToMilliseconds());
+
+            if (!CanAct)
+            {
+                return;
+            }
 
             if (_currentRemovedWallBlockState != RemovedWallBlockState.ClampedByTheWall)
             {
@@ -166,8 +184,31 @@ namespace Loderunner.Gameplay
 
                 _guardianStateData.ClimbingData = new ClimbingData(0, center, climbFinishPoint);
 
-                OnUpdatePath(new UpdateGuardiansPathMessage()).Forget();
+                UpdatePath().Forget();
             }
+        }
+
+        private void DropGold()
+        {
+            if (_hasGold)
+            {
+                var currentPosition = Position.ToVector2Int();
+
+                var dropPosition = new Vector2Int(currentPosition.x, currentPosition.y + 1);
+
+                _publisher.Publish(new GuardianDropGoldMessage(dropPosition));
+            }
+
+            _hasGold = false;
+        }
+
+        private void Reset()
+        {
+            CanAct = false;
+            
+            _mapPosition = _undefinedMapPosition;
+            _currentRemovedWallBlockState.Value = RemovedWallBlockState.None;
+            _pathToPlayer = new Stack<Vector2Int>();
         }
 
         private void OnWallBlockRestoringBegan(WallBlockRestoringBeganMessage message)
@@ -177,6 +218,27 @@ namespace Loderunner.Gameplay
             {
                 _currentRemovedWallBlockState.Value = RemovedWallBlockState.ClampedByTheWall;
             }
+        }
+
+        private void OnWallBlockRestored(WallBlockRestoredMessage message)
+        {
+            if (_currentRemovedWallBlockState == RemovedWallBlockState.ClampedByTheWall &&
+                Position.ToVector2Int() == message.WallBlockPosition.ToVector2Int())
+            {
+                Reset();
+                _publisher.Publish(new RespawnGuardianMessage(Id));
+            }
+        }
+
+        private async UniTaskVoid OnRespawned(GuardianRespawnedMessage message)
+        {
+            Respawn?.Invoke();
+            
+            await UniTask.Delay(_guardianConfig.RespawnTimeout.ToMilliseconds());
+
+            CanAct = true;
+            
+            UpdatePath().Forget();
         }
     }
 }

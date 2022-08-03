@@ -1,8 +1,10 @@
-﻿namespace Loderunner.Gameplay
+﻿using UnityEngine;
+
+namespace Loderunner.Gameplay
 {
     public interface IGuardianSpawner
     {
-        public bool TrySpawn(int id);
+        public GameObject TrySpawn(int id);
         bool IsSpawning { get; }
     }
 }

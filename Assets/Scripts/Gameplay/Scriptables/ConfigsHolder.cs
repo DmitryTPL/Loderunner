@@ -47,13 +47,14 @@ namespace Loderunner.Gameplay
         [SerializeField] private float _crawlSpeed;
         [SerializeField] private float _fallSpeed;
         [SerializeField] private float _stuckInRemovedBlockTimeout;
+        [SerializeField] private float _respawnTimeout;
 
         public float WalkSpeed => _walkSpeed;
         public float ClimbSpeed => _climbSpeed;
         public float CrawlSpeed => _crawlSpeed;
         public float FallSpeed => _fallSpeed;
-
         public float StuckInRemovedBlockTimeout => _stuckInRemovedBlockTimeout;
+        public float RespawnTimeout => _respawnTimeout;
     }
 
     [Serializable]

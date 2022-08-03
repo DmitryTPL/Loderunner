@@ -21,20 +21,20 @@ namespace Loderunner.Gameplay
             _transform = transform;
         }
 
-        public bool TrySpawn(int id)
+        public GameObject TrySpawn(int id)
         {
             if (IsSpawning)
             {
-                return false;
+                return null;
             }
 
             IsSpawning = true;
             
-            _guardianCreator.CreateGuardian(_transform, id);
+            var guardian = _guardianCreator.CreateGuardian(_transform, id);
             
             IsSpawning = false;
 
-            return true;
+            return guardian;
         }
     }
 }

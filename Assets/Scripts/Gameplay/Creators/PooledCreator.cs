@@ -7,6 +7,7 @@ namespace Loderunner.Gameplay
     public interface IInstantiateData
     {
         Transform Parent { get; }
+        Vector3 LocalPosition { get; }
     }
     
     public abstract class PooledCreator<TView, TPresenter>
@@ -33,6 +34,8 @@ namespace Loderunner.Gameplay
             var view = _objects.Pop();
 
             view.transform.parent = data.Parent;
+            view.transform.localPosition = data.LocalPosition;
+            view.gameObject.SetActive(true);
 
             return view;
         }
