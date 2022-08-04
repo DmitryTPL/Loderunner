@@ -144,7 +144,7 @@ namespace Loderunner.Gameplay
 
         private void OnGoldReached(CharacterReachedGoldMessage message)
         {
-            if (_hasGold)
+            if (_hasGold || _currentRemovedWallBlockState.Value != RemovedWallBlockState.None)
             {
                 return;
             }
@@ -162,12 +162,12 @@ namespace Loderunner.Gameplay
         private async UniTaskVoid LaunchRemovedWallBlockLifetime(float center, float climbFinishPoint)
         {
             _currentRemovedWallBlockState.Value = RemovedWallBlockState.Falling;
-
-            DropGold();
             
             await UniTask.WaitWhile(() => !_characterFallObserver.IsGrounded);
 
             _currentRemovedWallBlockState.Value = RemovedWallBlockState.Stuck;
+            
+            DropGold();
 
             await UniTask.Delay(_guardianConfig.StuckInRemovedBlockTimeout.ToMilliseconds());
 
@@ -192,11 +192,7 @@ namespace Loderunner.Gameplay
         {
             if (_hasGold)
             {
-                var currentPosition = Position.ToVector2Int();
-
-                var dropPosition = new Vector2Int(currentPosition.x, currentPosition.y + 1);
-
-                _publisher.Publish(new GuardianDropGoldMessage(dropPosition));
+                _publisher.Publish(new GuardianDropGoldMessage(Position.ToVector2Int()));
             }
 
             _hasGold = false;

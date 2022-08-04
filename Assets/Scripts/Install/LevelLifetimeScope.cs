@@ -39,6 +39,7 @@ namespace Loderunner.Install
             builder.Register<GuardianSpawnerPresenter>(Lifetime.Transient);
             builder.Register<GuardianPresenter>(Lifetime.Transient);
             builder.Register<GuardianSpawnerPresenter>(Lifetime.Transient);
+            builder.Register<GoldSpawnerPresenter>(Lifetime.Transient);
         }
 
         private void RegisterFactories(IContainerBuilder builder)

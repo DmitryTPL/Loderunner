@@ -4,11 +4,11 @@ namespace Loderunner.Gameplay
 {
     public readonly struct GuardianDropGoldMessage
     {
-        public Vector2Int DropPosition { get; }
+        public Vector2Int GuardianPosition { get; }
 
-        public GuardianDropGoldMessage(Vector2Int dropPosition)
+        public GuardianDropGoldMessage(Vector2Int guardianPosition)
         {
-            DropPosition = dropPosition;
+            GuardianPosition = guardianPosition;
         }
     }
 }
