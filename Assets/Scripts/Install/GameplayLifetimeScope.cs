@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Loderunner.Gameplay;
-using Loderunner.Gameplay.Logic.Gameplay;
 using Loderunner.Service;
 using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
@@ -11,7 +10,6 @@ namespace Loderunner.Install
 {
     public class GameplayLifetimeScope : LifetimeScope
     {
-        [Header("Player"), SerializeField] private PlayerView _playerViewPrefab;
         [Header("Levels"), SerializeField] private List<LevelView> _levelPrefabs = new();
         [SerializeField] private Transform _levelPosition;
         [Header("Configs"), SerializeField] private ConfigsHolder _configsHolder;
@@ -37,37 +35,19 @@ namespace Loderunner.Install
         {
             builder.Register<AsyncEnumerableMessageBus>(Lifetime.Singleton).As<IAsyncEnumerablePublisher, IAsyncEnumerableReceiver>();
             
-            builder.Register<LevelData>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<ITime, DefaultTimeHandler>(Lifetime.Singleton);
             
             builder.Register<LevelCreator>(Lifetime.Singleton).AsImplementedInterfaces();
-            builder.Register<PlayerCreator>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<LevelData>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             
-            builder.Register<PlayerStateData>(Lifetime.Scoped).AsSelf();
-            builder.Register<PlayerStateContext>(Lifetime.Scoped).AsSelf();
-            
-            builder.Register<StateData>(Lifetime.Transient).AsSelf();
-            builder.Register<GuardianStateContext>(Lifetime.Transient).AsSelf();
-            
-            builder.Register<LevelFinishedObserver>(Lifetime.Singleton).AsImplementedInterfaces();
-            builder.Register<CharacterFallObserver>(Lifetime.Transient).AsImplementedInterfaces();
-            builder.Register<WallBlockRemover>(Lifetime.Transient).AsImplementedInterfaces();
-            builder.Register<GuardiansCommanderFacade>(Lifetime.Singleton).AsImplementedInterfaces();
-            builder.Register<AStarPathFinder>(Lifetime.Singleton).AsImplementedInterfaces();
-
-            builder.Register<PrepareScenePresenter>(Lifetime.Transient);
             builder.Register<LevelPresenter>(Lifetime.Transient);
-            builder.Register<PlayerPresenter>(Lifetime.Transient);
-            builder.Register<CameraFollowPresenter>(Lifetime.Transient);
-            builder.Register<PlayerSpawnerPresenter>(Lifetime.Transient);
-            builder.Register<InitialCameraLevelPassagePresenter>(Lifetime.Transient);
+            builder.Register<PrepareScenePresenter>(Lifetime.Singleton);
+            builder.Register<CameraFollowPresenter>(Lifetime.Singleton);
+            builder.Register<InitialCameraLevelPassagePresenter>(Lifetime.Singleton);
         }
 
         private void RegisterFactories(IContainerBuilder builder)
         {
-            builder.RegisterFactory<Transform, PlayerView>(container =>
-                parent => container.Instantiate(_playerViewPrefab, parent), Lifetime.Singleton);
-
             builder.RegisterFactory<int, LevelView>(container =>
                 levelIndex => container.Instantiate(_levelPrefabs[levelIndex], _levelPosition), Lifetime.Singleton);
         }

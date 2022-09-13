@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
@@ -8,11 +9,11 @@ namespace Loderunner.Gameplay
         {
         }
         
-        public override void Execute(Animator animator)
+        public override async UniTask Execute(Animator animator)
         {
             ResetAll(animator);
             
-            base.Execute(animator);
+            await base.Execute(animator);
             
             animator.SetBool(CharacterAnimationParameter.IsClimbing, true);
         }

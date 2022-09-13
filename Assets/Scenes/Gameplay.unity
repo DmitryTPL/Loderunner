@@ -322,9 +322,8 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 162711541}
   - {fileID: 507626373}
-  _playerViewPrefab: {fileID: 7272430109995714382, guid: 7226b12d286be304887dbd4ebf4b7b82, type: 3}
   _levelPrefabs:
-  - {fileID: 1862502876817448757, guid: 3a5a60e25eb89034799cdc1d0ee427e5, type: 3}
+  - {fileID: 5393712253915690207, guid: 3a5a60e25eb89034799cdc1d0ee427e5, type: 3}
   _levelPosition: {fileID: 256563681}
   _configsHolder: {fileID: 11400000, guid: 8f2000e6f14db9f43be90929c1b9e530, type: 2}
   _levelsConfigsHolder: {fileID: 11400000, guid: 3da54214c0f9e8448a35c6bffc7ef6a5, type: 2}

@@ -7,7 +7,7 @@ namespace Loderunner.Install
 {
     public class LevelLifetimeScope : LifetimeScope
     {
-        [SerializeField] private GoldView _goldViewPrefab;
+        [SerializeField] private PlayerView _playerViewPrefab;        [SerializeField] private GoldView _goldViewPrefab;
         [SerializeField] private GuardianView _guardianViewPrefab;
         [SerializeField] private Transform _pool;
 
@@ -19,11 +19,29 @@ namespace Loderunner.Install
 
         private void RegisterTypes(IContainerBuilder builder)
         {
+            
             builder.Register<IGuardiansSpawnCenter, GuardiansSpawnCenter>(Lifetime.Singleton);
             
-            builder.Register<GoldCreator>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<StateData>(Lifetime.Transient).AsSelf();
+            builder.Register<PlayerStateData>(Lifetime.Transient).AsSelf();
+            
+            builder.Register<GuardianStateContext>(Lifetime.Transient).AsSelf();
+            
+            builder.Register<PlayerCreator>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<GuardianCreator>(Lifetime.Singleton).AsImplementedInterfaces().WithParameter("pool", _pool);
+            builder.Register<GoldCreator>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<PlayerStateContext>(Lifetime.Transient).AsSelf();
+            
+            builder.Register<GuardiansCommanderFacade>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<AStarPathFinder>(Lifetime.Singleton).AsImplementedInterfaces();
+            
+            builder.Register<WallBlockRemover>(Lifetime.Transient).AsImplementedInterfaces();
+            
+            builder.Register<LevelFinishedObserver>(Lifetime.Singleton).AsImplementedInterfaces();
 
+            builder.Register<PlayerPresenter>(Lifetime.Transient);
+            builder.Register<PlayerSpawnerPresenter>(Lifetime.Transient);
+            builder.Register<CharacterFallObserver>(Lifetime.Transient).AsImplementedInterfaces();
             builder.Register<LadderPresenter>(Lifetime.Transient);
             builder.Register<RemovableWallBlockPresenter>(Lifetime.Transient);
             builder.Register<RemovedWallPresenter>(Lifetime.Transient);
@@ -44,6 +62,9 @@ namespace Loderunner.Install
 
         private void RegisterFactories(IContainerBuilder builder)
         {
+            builder.RegisterFactory<Transform, PlayerView>(container =>
+                parent => container.Instantiate(_playerViewPrefab, parent), Lifetime.Singleton);
+            
             builder.RegisterFactory<Transform, GoldView>(container =>
                 parent => container.Instantiate(_goldViewPrefab, parent), Lifetime.Singleton);
             

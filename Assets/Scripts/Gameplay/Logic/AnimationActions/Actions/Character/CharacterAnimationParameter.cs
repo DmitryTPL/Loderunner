@@ -12,5 +12,7 @@ namespace Loderunner.Gameplay
         public static readonly int IsFalling = Animator.StringToHash("IsFalling");
         public static readonly int MoveSpeed = Animator.StringToHash("MoveSpeed");
         public static readonly int IsRemovingBlock = Animator.StringToHash("IsRemovingBlock");
+        public static readonly int GuardianSpawn = Animator.StringToHash("Spawn");
+        public static readonly int PlayerDied = Animator.StringToHash("Death");
     }
 }

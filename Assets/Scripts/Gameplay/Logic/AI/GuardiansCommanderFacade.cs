@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
@@ -8,7 +7,7 @@ using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
-    public class GuardiansCommanderFacade : IDisposable, IGuardiansCommander
+    public class GuardiansCommanderFacade : IGuardiansCommander
     {
         private readonly CancellationTokenSource _unsubscribeTokenSource = new();
 
@@ -27,6 +26,7 @@ namespace Loderunner.Gameplay
             _levelData = levelData;
 
             receiver.Receive<PlayerMovedMessage>().Subscribe(OnPlayerMoved).AddTo(_unsubscribeTokenSource.Token);
+            receiver.Receive<PlayerCachedMessage>().Subscribe(OnPlayerCached).AddTo(_unsubscribeTokenSource.Token);
         }
 
         public void Register(int id)
@@ -41,6 +41,7 @@ namespace Loderunner.Gameplay
 
         public void Dispose()
         {
+            _guardians.Clear();
             _unsubscribeTokenSource.Dispose();
         }
 
@@ -53,6 +54,14 @@ namespace Loderunner.Gameplay
                 _playerPosition = newPlayerPosition;
 
                 _publisher.Publish(new UpdateGuardiansPathMessage());
+            }
+        }
+
+        private void OnPlayerCached(PlayerCachedMessage obj)
+        {
+            foreach (var guardianId in _guardians)
+            {
+                _publisher.Publish(new StopActingMessage(guardianId.Key));
             }
         }
     }

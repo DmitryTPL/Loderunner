@@ -5109,6 +5109,10 @@ PrefabInstance:
       propertyPath: autoInjectGameObjects.Array.data[38]
       value: 
       objectReference: {fileID: 3867681883693984941}
+    - target: {fileID: 3070263485327373480, guid: 59eb7184ecda28944a761e62968fc95e, type: 3}
+      propertyPath: autoInjectGameObjects.Array.data[39]
+      value: 
+      objectReference: {fileID: 3867681883693984941}
     - target: {fileID: 3834262732775394079, guid: 59eb7184ecda28944a761e62968fc95e, type: 3}
       propertyPath: _pathWeightMap._array.Array.data[67]
       value: 2

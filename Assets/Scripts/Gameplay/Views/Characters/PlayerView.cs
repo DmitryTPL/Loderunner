@@ -1,3 +1,5 @@
+using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
@@ -12,6 +14,8 @@ namespace Loderunner.Gameplay
 
         public override CharacterType CharacterType => CharacterType.Player;
 
+        private Action _cachedEventHandler;
+
         protected override void Awake()
         {
             base.Awake();
@@ -22,9 +26,12 @@ namespace Loderunner.Gameplay
         protected override void PresenterAttached()
         {
             base.PresenterAttached();
+
+            _cachedEventHandler = UniTask.Action(OnCached);
             
             _presenter.BlockRemoving += OnBlockRemoving;
             _presenter.BlockRemoved += OnBlockRemoved;
+            _presenter.Cached += _cachedEventHandler;
         }
 
         protected override void OnDestroy()
@@ -33,6 +40,7 @@ namespace Loderunner.Gameplay
             
             _presenter.BlockRemoving -= OnBlockRemoving;
             _presenter.BlockRemoved -= OnBlockRemoved;
+            _presenter.Cached -= _cachedEventHandler;
         }
 
         private void FixedUpdate()
@@ -51,14 +59,16 @@ namespace Loderunner.Gameplay
                 removeBlockType = RemoveBlockType.Right;
             }
 
-            _presenter.UpdateCharacterMoveData(new MovingData(horizontalMove, verticalMove, transform.position));
-            _presenter.UpdatePlayerRemovingBlock(removeBlockType, transform.position);
+            var position = transform.position;
+            
+            _presenter.UpdateCharacterMoveData(new MovingData(horizontalMove, verticalMove, position));
+            _presenter.UpdatePlayerRemovingBlock(removeBlockType, position);
             _presenter.UpdateCharacterState();
         }
         
         private void OnBlockRemoving(Vector2 newPosition, RemoveBlockType removeBlockType)
         {
-            _animationHandler.ApplyAnimation(new CharacterRemoveBlockAnimationAction());
+            _animationHandler.ApplyAnimation(new CharacterRemoveBlockAnimationAction()).Forget();
             
             SetLookDirection(removeBlockType == RemoveBlockType.Right ? 1 : -1);
             
@@ -67,7 +77,14 @@ namespace Loderunner.Gameplay
 
         private void OnBlockRemoved()
         {
-            _animationHandler.ApplyAnimation(new CharacterRemoveBlockFinishedAnimationAction());
+            _animationHandler.ApplyAnimation(new CharacterRemoveBlockFinishedAnimationAction()).Forget();
+        }
+
+        private async UniTaskVoid OnCached()
+        {
+            await _animationHandler.ApplyAnimation(new PlayerDiedAnimationAction());
+
+            _presenter.PlayerDeathFinished();
         }
     }
 }

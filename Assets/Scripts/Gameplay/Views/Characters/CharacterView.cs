@@ -1,4 +1,5 @@
-﻿using Loderunner.Service;
+﻿using Cysharp.Threading.Tasks;
+using Loderunner.Service;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
@@ -71,7 +72,7 @@ namespace Loderunner.Gameplay
         {
             var delta = newPosition.x - transform.position.x;
 
-            _animationHandler.ApplyAnimation(new MoveAnimationAction(moveSpeed));
+            _animationHandler.ApplyAnimation(new MoveAnimationAction(moveSpeed)).Forget();
 
             _rigidbody.MovePosition(newPosition);
 
@@ -80,19 +81,19 @@ namespace Loderunner.Gameplay
 
         private void OnClimbing(Vector2 newPosition, float moveSpeed)
         {
-            _animationHandler.ApplyAnimation(new ClimbAnimationAction(moveSpeed));
+            _animationHandler.ApplyAnimation(new ClimbAnimationAction(moveSpeed)).Forget();
 
             _rigidbody.MovePosition(newPosition);
         }
 
         private void OnClimbingFinished()
         {
-            _animationHandler.ApplyAnimation(new ClimbFinishedAnimationAction());
+            _animationHandler.ApplyAnimation(new ClimbFinishedAnimationAction()).Forget();
         }
 
         private void OnFalling(Vector2 newPosition)
         {
-            _animationHandler.ApplyAnimation(new FallingAnimationAction());
+            _animationHandler.ApplyAnimation(new FallingAnimationAction()).Forget();
 
             _rigidbody.MovePosition(newPosition);
         }
@@ -101,7 +102,7 @@ namespace Loderunner.Gameplay
         {
             var delta = newPosition.x - transform.position.x;
 
-            _animationHandler.ApplyAnimation(new CrawlAnimationAction(moveSpeed));
+            _animationHandler.ApplyAnimation(new CrawlAnimationAction(moveSpeed)).Forget();
 
             _rigidbody.MovePosition(newPosition);
 
@@ -110,7 +111,7 @@ namespace Loderunner.Gameplay
 
         private void OnCrawlingFinished()
         {
-            _animationHandler.ApplyAnimation(new CrawlFinishedAnimationAction());
+            _animationHandler.ApplyAnimation(new CrawlFinishedAnimationAction()).Forget();
         }
     }
 }

@@ -14,16 +14,25 @@ namespace Loderunner.Gameplay
             _camera = GetComponent<Camera>();
         }
 
-        private void Start()
+        protected override void PresenterAttached()
         {
-            StartPassage().Forget();
+            base.PresenterAttached();
+
+            _presenter.LevelCreated += OnLevelCreated;
         }
 
         private async UniTask StartPassage()
         {
+            _camera.transform.position = new Vector3(0, 0, 1);
+            
             await UniTask.Delay(1000);
             
             _presenter.PassageCompleted();
+        }
+
+        private void OnLevelCreated()
+        {
+            StartPassage().Forget();
         }
     }
 }

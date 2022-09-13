@@ -38,6 +38,8 @@ namespace Loderunner.Gameplay
             _publisher = publisher;
             _characterFallObserver = characterFallObserver;
             _stateData = stateData;
+
+            characterFallObserver.AddTo(DisposeCancellationToken);
         }
 
         public virtual void CharacterCreated(int id)

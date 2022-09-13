@@ -1,7 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
-using Loderunner.Gameplay.Logic.Gameplay;
 using UniTaskPubSub.AsyncEnumerable;
 using UnityEngine;
 
@@ -17,6 +16,7 @@ namespace Loderunner.Gameplay
 
         public event Action<Vector2, RemoveBlockType> BlockRemoving;
         public event Action BlockRemoved;
+        public event Action Cached;
 
         public override CharacterType CharacterType => CharacterType.Player;
 
@@ -29,6 +29,11 @@ namespace Loderunner.Gameplay
             _gameConfig = gameConfig;
             _levelFinishedObserver = levelFinishedObserver;
             _playerStateData = playerStateContext.StateData;
+
+            levelFinishedObserver.AddTo(DisposeCancellationToken);
+            wallBlockRemover.AddTo(DisposeCancellationToken);
+
+            receiver.Receive<PlayerCachedMessage>().Subscribe(OnCached).AddTo(DisposeCancellationToken);
         }
 
         public override void CharacterCreated(int id)
@@ -117,9 +122,22 @@ namespace Loderunner.Gameplay
             _publisher.Publish(new CharacterCollectGoldMessage(message.GoldGuid, Id));
         }
 
-        private void OnPlayerReachedLevelExit(PlayerReachedLevelExitMessage obj)
+        private void OnPlayerReachedLevelExit(PlayerReachedLevelExitMessage _)
         {
             CanAct = false;
+        }
+
+        private void OnCached(PlayerCachedMessage _)
+        {
+            CanAct = false;
+            Cached?.Invoke();
+        }
+
+        public void PlayerDeathFinished()
+        {
+            this.Log("Player Death Finished");
+            
+            _publisher.Publish(new PlayerDiedMessage());
         }
     }
 }

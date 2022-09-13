@@ -9,7 +9,7 @@ using Random = System.Random;
 
 namespace Loderunner.Gameplay
 {
-    public class GuardiansSpawnCenter : IDisposable, IGuardiansSpawnCenter
+    public class GuardiansSpawnCenter : IGuardiansSpawnCenter
     {
         private readonly CancellationTokenSource _disposeCancellationTokenSource = new();
         private CancellationToken DisposeCancellationToken => _disposeCancellationTokenSource.Token;
@@ -40,6 +40,7 @@ namespace Loderunner.Gameplay
         public void Dispose()
         {
             _spawners.Clear();
+            _guardians.Clear();
             _disposeCancellationTokenSource?.Dispose();
         }
 

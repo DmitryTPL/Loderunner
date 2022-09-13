@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
@@ -10,9 +11,12 @@ namespace Loderunner.Gameplay
         {
             _isRestoring = isRestoring;
         }
-        public override void Execute(Animator animator)
+        
+        public override UniTask Execute(Animator animator)
         {
             animator.SetBool(WallAnimationParameter.IsRestoring, _isRestoring);
+
+            return UniTask.CompletedTask;
         }
     }
 }

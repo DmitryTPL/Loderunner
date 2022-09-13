@@ -1,6 +1,8 @@
-﻿namespace Loderunner.Gameplay
+﻿using System;
+
+namespace Loderunner.Gameplay
 {
-    public interface IGuardiansSpawnCenter
+    public interface IGuardiansSpawnCenter: IDisposable
     {
         void Register(IGuardianSpawner spawner);
     }

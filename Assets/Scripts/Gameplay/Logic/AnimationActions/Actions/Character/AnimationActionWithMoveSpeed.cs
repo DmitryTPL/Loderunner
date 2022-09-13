@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
@@ -12,9 +13,11 @@ namespace Loderunner.Gameplay
             _moveSpeed = Math.Abs(moveSpeed);
         }
         
-        public override void Execute(Animator animator)
+        public override UniTask Execute(Animator animator)
         {
             animator.SetFloat(CharacterAnimationParameter.MoveSpeed, _moveSpeed);
+            
+            return UniTask.CompletedTask;
         }
     }
 }

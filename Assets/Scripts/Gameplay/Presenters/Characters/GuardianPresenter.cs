@@ -42,6 +42,8 @@ namespace Loderunner.Gameplay
             _guardianConfig = guardianConfig;
             _guardianStateData = stateContext.StateData;
 
+            _guardiansCommander.AddTo(DisposeCancellationToken);
+
             receiver.Receive<UpdateGuardiansPathMessage>().Subscribe(OnUpdatePath).AddTo(DisposeCancellationToken);
             receiver.Receive<CharacterReachedGoldMessage>().Subscribe(OnGoldReached).AddTo(DisposeCancellationToken);
             receiver.Receive<CharacterNeedToFallInRemovedBlockMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnCharacterNeedToFallInRemovedBlock)
@@ -49,6 +51,7 @@ namespace Loderunner.Gameplay
             receiver.Receive<WallBlockRestoringBeganMessage>().Subscribe(OnWallBlockRestoringBegan).AddTo(DisposeCancellationToken);
             receiver.Receive<WallBlockRestoredMessage>().Subscribe(OnWallBlockRestored).AddTo(DisposeCancellationToken);
             receiver.Receive<GuardianRespawnedMessage>().Where(m => m.IsCharacterMatch(Id)).Subscribe(OnRespawned).AddTo(DisposeCancellationToken);
+            receiver.Receive<PlayerCachedMessage>().Subscribe(OnPlayerCached).AddTo(DisposeCancellationToken);
         }
 
         public override void CharacterCreated(int id)
@@ -92,6 +95,13 @@ namespace Loderunner.Gameplay
             _publisher.Publish(new PlayerCachedMessage());
         }
 
+        public async UniTask RespawnFinished()
+        {
+            await UpdatePath();
+            
+            CanAct = true;
+        }
+
         protected override void FinishClimbing()
         {
             base.FinishClimbing();
@@ -113,12 +123,12 @@ namespace Loderunner.Gameplay
             return xCoordinateReached && yCoordinateReached;
         }
 
-        private void OnUpdatePath(UpdateGuardiansPathMessage message)
+        private async UniTaskVoid OnUpdatePath(UpdateGuardiansPathMessage message)
         {
-            UpdatePath().Forget();
+            await UpdatePath();
         }
 
-        private async UniTaskVoid UpdatePath()
+        private async UniTask UpdatePath()
         {
             if (_currentRemovedWallBlockState.Value is RemovedWallBlockState.Stuck or RemovedWallBlockState.ClampedByTheWall)
             {
@@ -154,12 +164,12 @@ namespace Loderunner.Gameplay
             _publisher.Publish(new CharacterCollectGoldMessage(message.GoldGuid, Id));
         }
 
-        private void OnCharacterNeedToFallInRemovedBlock(CharacterNeedToFallInRemovedBlockMessage message)
+        private async UniTaskVoid OnCharacterNeedToFallInRemovedBlock(CharacterNeedToFallInRemovedBlockMessage message)
         {
-            LaunchRemovedWallBlockLifetime(message.FallPoint, message.Top).Forget();
+            await LaunchRemovedWallBlockLifetime(message.FallPoint, message.Top);
         }
 
-        private async UniTaskVoid LaunchRemovedWallBlockLifetime(float center, float climbFinishPoint)
+        private async UniTask LaunchRemovedWallBlockLifetime(float center, float climbFinishPoint)
         {
             _currentRemovedWallBlockState.Value = RemovedWallBlockState.Falling;
             
@@ -226,15 +236,14 @@ namespace Loderunner.Gameplay
             }
         }
 
-        private async UniTaskVoid OnRespawned(GuardianRespawnedMessage message)
+        private void OnRespawned(GuardianRespawnedMessage message)
         {
             Respawn?.Invoke();
-            
-            await UniTask.Delay(_guardianConfig.RespawnTimeout.ToMilliseconds());
+        }
 
-            CanAct = true;
-            
-            UpdatePath().Forget();
+        private void OnPlayerCached(PlayerCachedMessage _)
+        {
+            CanAct = false;
         }
     }
 }

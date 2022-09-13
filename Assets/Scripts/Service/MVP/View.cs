@@ -1,5 +1,4 @@
 using System;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
@@ -23,6 +22,12 @@ namespace Loderunner.Service
         protected virtual void PresenterAttached()
         {
             
+        }
+
+        protected virtual void OnDestroy()
+        {
+            _presenter?.Dispose();
+            _presenter = null;
         }
     }
 }

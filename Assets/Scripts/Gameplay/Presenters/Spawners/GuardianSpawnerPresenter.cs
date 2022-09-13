@@ -1,4 +1,5 @@
-﻿using Loderunner.Service;
+﻿using Cysharp.Threading.Tasks;
+using Loderunner.Service;
 using UnityEngine;
 
 namespace Loderunner.Gameplay
@@ -14,6 +15,8 @@ namespace Loderunner.Gameplay
         {
             _guardianCreator = guardianCreator;
             spawnCenter.Register(this);
+
+            spawnCenter.AddTo(DisposeCancellationToken);
         }
 
         public void SetSpawnPoint(Transform transform)

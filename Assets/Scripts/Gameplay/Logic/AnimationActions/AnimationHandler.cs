@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Loderunner.Gameplay
 {
@@ -12,9 +13,9 @@ namespace Loderunner.Gameplay
             _animator = GetComponent<Animator>();
         }
 
-        public void ApplyAnimation(AnimationActionBase animationAction)
+        public async UniTask ApplyAnimation(AnimationActionBase animationAction)
         {
-            animationAction?.Execute(_animator);
+            await animationAction.Execute(_animator);
         }
     }
 }

@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using UniTaskPubSub.AsyncEnumerable;
 
-namespace Loderunner.Gameplay.Logic.Gameplay
+namespace Loderunner.Gameplay
 {
     public class LevelFinishedObserver : ILevelFinishedObserver
     {
@@ -24,6 +24,7 @@ namespace Loderunner.Gameplay.Logic.Gameplay
 
             receiver.Receive<LevelCreatedMessage>().Subscribe(OnLevelCreated).AddTo(_disposeTokenSource.Token);
             receiver.Receive<CharacterCollectGoldMessage>().Where(m => m.IsCharacterMatch(_characterId)).Subscribe(OnPlayerCollectGold).AddTo(_disposeTokenSource.Token);
+            receiver.Receive<PlayerDiedMessage>().Subscribe(OnPlayerDied).AddTo(_disposeTokenSource.Token).AddTo(_disposeTokenSource.Token);
         }
 
         public void Dispose()
@@ -49,6 +50,11 @@ namespace Loderunner.Gameplay.Logic.Gameplay
         private void OnLevelCreated(LevelCreatedMessage message)
         {
             _levelId = message.LevelId;
+        }
+
+        private void OnPlayerDied(PlayerDiedMessage _)
+        {
+            _publisher.Publish(new LevelResetMessage());
         }
     }
 }
